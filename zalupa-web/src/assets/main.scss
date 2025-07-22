@@ -1,0 +1,59 @@
+@import './base.scss';
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid $primaryBlack;
+    background-color: $secondBlack;
+    padding: 0px 15px;
+    height: 60px;
+    width: inherit;
+    box-shadow: 0 1px 10px 0 black;
+}
+
+.header-logo-title {
+    font-family: 'Libre', sans-serif;
+    font-size: 50px;
+    color: $white;
+}
+
+
+
+.header-moderation-div {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 12px;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.header-user-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.hub {
+    padding: 16px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: $hoverBlack;
+    }
+}
+
+.hub:active, .header-navigation > a:active {
+    background-color: $primaryBlack;
+}
+
+@media screen and (max-width: 1440px) {
+    .header-navigation {
+        display: none;
+    }
+}
+
+
