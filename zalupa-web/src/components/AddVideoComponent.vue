@@ -36,6 +36,7 @@ export default {
             }
             else if (link.length !== 43 || link.startsWith('https://www.youtube.com/watch?v=') === false) {
                 alert("Это не Ютуб, броу")
+                console.log('asd')
             }
 
             else {
