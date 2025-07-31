@@ -21,16 +21,21 @@ function funcLimitCounter() {
 function hideChat() {
   const chat = document.querySelector('.chat')
   const hideChat = document.querySelector('.hide-chat')
+  const videoMainArea = document.querySelector('.video-main-area')
 
+  chat.style.transition = '.2s'
   if (isChatOpen.value) {
     chat.style.width = '0'
     chat.style.left = '100px'
     hideChat.style.transform = 'rotate(180deg)'
+    videoMainArea.style.width = '100%'
+
   }
   else {
     chat.style.width = '400px'
     chat.style.left = '0'
     hideChat.style.transform = 'rotate(0deg)'
+    videoMainArea.style.width = 'calc(100% - 400px)'
   }
   isChatOpen.value = !isChatOpen.value
 }
@@ -100,8 +105,8 @@ console.log(allMessages);
         </div>
 
         <div class="chat-footer">
-            <input v-model="newMessage.text" @keyup.enter="sendMessage" maxlength="500" class="chat-footer-input" type="text" placeholder="Сообщение" @input="funcLimitCounter">
-            <p class="chat-footer-limit-counter">{{limitCounter}}/500</p>
+            <input v-model="newMessage.text" @keyup.enter="sendMessage" maxlength="250" class="chat-footer-input" type="text" placeholder="Сообщение" @input="funcLimitCounter">
+            <p class="chat-footer-limit-counter">{{limitCounter}}/250</p>
             <button @click="sendMessage" class="chat-footer-button">го</button>
         </div>
     </div>

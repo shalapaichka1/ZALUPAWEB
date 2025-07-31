@@ -10,8 +10,6 @@ const useStore = useAuthStore()
 </script>
 
 <template>
-    <HeaderComponent/>
-    <ChatComponent/>
     <SignUpComponent v-if="useStore.isChatOpen"/>
     <SignInComponent v-else/>
 </template>

@@ -1,3 +1,7 @@
 <template>
-    <h1>Ideas</h1>
+    <div class="ideas-body">
+    </div>
 </template>
+
+<style>
+</style>

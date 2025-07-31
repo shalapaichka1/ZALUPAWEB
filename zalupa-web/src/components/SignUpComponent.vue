@@ -6,8 +6,20 @@ const authStore = useAuthStore()
 
 const signUp = async () => {
     const userNickname = document.getElementsByClassName('login')[0].value
+    const email = document.getElementsByClassName('email')[0].value
+    const password = document.getElementsByClassName('password')[0].value
+    const repeatPassword = document.getElementsByClassName('repeat-password')[0].value
+
+    if (userNickname !== '' && email !== '' && password !== '' && repeatPassword !== '') {
+
+        await authStore.signUp({ nickname: userNickname, email: email, password: password})
+
+        document.cookie = "login=" + encodeURIComponent(userNickname) + "; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/";
+        document.cookie = "last-date-login=" + Date.now() + "; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/";
+    }
     // await authStore.signUp({email: email.value, password: password.value})
-    document.cookie = "userNickname=" + encodeURIComponent(userNickname) + "; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/";
+
+
 }
 
 const checkLogin = () => {

@@ -11,15 +11,15 @@ const useStore = useAuthStore()
         </div>
 
         <div class="header-navigation">
-            <a href="/arts">Арты</a>
             <a href="/ideas">Идеи</a>
             <a href="/videos">Видео</a>
-            <a href="/events">Ивенты</a>
-            <a href="/merch">Мерч</a>
-            <a href="/mini-games">Мини игры</a>
-            <a href="/calendar">Календарь событий</a>
-            <a href="/raffles">Розыгрыши</a>
-            <a href="/q-a">Q&A</a>
+            <!-- <a href="/arts">Арты</a> -->
+            <!-- <a href="/events">Ивенты</a> -->
+            <!-- <a href="/merch">Мерч</a> -->
+            <!-- <a href="/mini-games">Мини игры</a> -->
+            <!-- <a href="/calendar">Календарь событий</a> -->
+            <!-- <a href="/practical-jokes">Розыгрыши</a> -->
+            <a href="/q&a">Q&A</a>
         </div>
 
         <div class="header-buttons">
@@ -39,6 +39,11 @@ const useStore = useAuthStore()
 </template>
 
 <style scoped>
+
+a:active {
+    color: #6441a5;
+
+}
 .header-navigation {
     display: flex;
     a {
@@ -55,6 +60,12 @@ const useStore = useAuthStore()
 
     a:hover {
         background-color: rgb(51, 51, 51);
+    }
+
+    a:active {
+        transition: 0.1s;
+        transform: scale(0.9);
+        
     }
 }
 
