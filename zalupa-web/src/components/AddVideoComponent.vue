@@ -28,6 +28,7 @@ export default {
         },
         notification() {
             const link = document.getElementsByClassName('add-video-module-input')[0].value
+            const comment_text = document.getElementsByClassName('add-video-comment-input')[0].value
             if (link === '') {
                 alert('Вы не ввели ссылку на видео!')
             }
@@ -40,7 +41,7 @@ export default {
             }
 
             else {
-                API.videos.addVideo(link)
+                API.videos.addVideo(link, comment_text)
                 alert('Видео успешно добавлено!')
                 this.removeComponent()
             }
@@ -63,7 +64,7 @@ export default {
         <div class="add-video-module">
             <h1>Добавить видео</h1>
             <input @input="changeColorInfo" class="add-video-module-input" type="text" placeholder="Ссылка на видео">
-            <input type="text" placeholder="Комментарий  (не более 50 символов, не обязательно)">
+            <input class="add-video-comment-input" type="text" placeholder="Комментарий  (не более 50 символов, не обязательно)">
             <button class="add-video-module-button" @click="notification"> Добавить</button>
             <img src="../images/close-button.png" alt="" class="add-video-module-close-button" @click="removeComponent">
         </div>

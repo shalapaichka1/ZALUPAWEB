@@ -51,8 +51,5 @@ button {
     font-size: 14px;
     padding: 10px 15px;
     border-radius: 5px;
-
-    &:hover {
-        border: 1px solid #b3b3b3;
-    }
+    cursor: pointer;
 }
