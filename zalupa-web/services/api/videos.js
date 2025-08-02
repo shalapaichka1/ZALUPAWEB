@@ -4,8 +4,7 @@ import { instance } from '../axios/instance.js'
 export const getVideos = async () => {
   try {
     const response = await instance.get('/videos')
-    console.log(response.data)
-    return response.data
+    return { ...response.data.data }
   } catch (error) {
     console.error(error)
   }

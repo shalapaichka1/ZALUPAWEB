@@ -1,57 +1,6 @@
 <script setup>
-    
-    var videoList = [
-        {
-            id: 1,
-            title: 'Видео 1',
-            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-            status: 'moderation',
-            isChecked: false
-        },
-        {
-            id: 2,
-            title: 'Видео 2',
-            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-            status: 'accepted',
-            isChecked: false
-        },
-        {
-            id: 3,
-            title: 'Видео 3',
-            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-            status: 'rejected',
-            isChecked: false
-        },
-        {
-            id: 4,
-            title: 'Видео 4',
-            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-            status: 'moderation',
-            isChecked: false
-        },
-        {
-            id: 5,
-            title: 'Видео 5',
-            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-            status: 'accepted',
-            isChecked: true
-        },
-        {
-            id: 6,
-            title: 'Видео 6',
-            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-            status: 'rejected',
-            isChecked: false
-        },
-        {
-            id: 7,
-            title: 'Видео 7',
-            link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley',
-            status: 'moderation',
-            isChecked: false
-        }
-    ]
-
+    import api from '@/api';
+    import { API } from '../../services/api'
          function isCheckedFunction(e) {
             
             if(e.target.classList.contains('is-checked-button')) {
@@ -85,6 +34,13 @@
 </script>
 
 <script>
+
+
+        const videoList = await API.videos.getVideos()
+        for (let i = 0; i < Object.keys(await API.videos.getVideos()).length; i++) {
+            console.log(videoList[i].title);
+        }
+
         export default {
         data() {
             return {
@@ -96,10 +52,6 @@
                 console.log(e.target.value);
             }
         },
-
-            isCheckedFunction() {
-                console.log(videoList)
-        }
     }
 </script>
 <template>
@@ -107,10 +59,6 @@
         <div class="moderation-video-main-area-header">
             <h1>Модерация видео</h1>
             <div class="moderation-video-main-area-header-search-area">
-                <!-- <div class="grid-line">
-                    <img src="../images/gridRow.svg" alt="" @click="changeGridToRow">
-                    <img src="../images/gridColumn.svg" alt="" @click="changeGridToColumn">
-                </div> -->
                 <input @input="videoSearch" class="moderation-video-main-area-header-search" type="text" name="" id="" placeholder="Поиск"><select name="" id="">
                 <option>Все (11)</option>
                 <option>На модерации (6)</option>
@@ -123,28 +71,28 @@
 
         </div>
         <div class="moderation-video-main-area-content">
-            <div v-for="i in videoList" :key="i.id" class="moderation-video-main-area-content-element">
+            <div v-for="(i, documentId) in videoList" :key="documentId" class="moderation-video-main-area-content-element">
                 <div class="moderation-video-main-area-content-element-info">
                     <div class="moderation-video-main-area-content-element-info-header">
                     <h1 class="moderation-video-main-area-content-element-title">{{ i.title }}</h1>
                     <button class="is-checked-button" @click="isCheckedFunction">
-                        <p class="moderation-video-main-area-content-element-check-status">{{ i.isChecked ? 'Просмотренно' : 'Не просмотрено' }}</p>
-                        <img v-if="i.isChecked" class="is-checked-icon" src="../images/accept.svg" alt="" style="background-color: #85c57a; border-radius: 50%;">
+                        <p class="moderation-video-main-area-content-element-check-status">{{ i.is_checked ? 'Просмотренно' : 'Не просмотрено' }}</p>
+                        <img v-if="i.is_checked" class="is-checked-icon" src="../images/accept.svg" alt="" style="background-color: #85c57a; border-radius: 50%;">
                     </button>
                     </div>
-                    <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley" class="moderation-video-main-area-content-element-link">{{ i.link }}</a>
+                    <a target="_blank" :href="i.url" class="moderation-video-main-area-content-element-link">{{ i.url }}</a>
                     <div>
                     <div class="moderation-video-main-area-content-element-buttons">
                         <button class="moderation-video-main-area-content-element-button-yes">Смотрим</button>
                         <button class="moderation-video-main-area-content-element-button-mb">Мб смотрим</button>
                         <button class="moderation-video-main-area-content-element-button-no">Хуйня</button>
                     </div>
-                    <p :class="'moderation-video-main-area-content-element-status-' + i.status">{{ i.status }}</p>
+                    <p :class="'moderation-video-main-area-content-element-status-' + i.agreement_status">{{ i.agreement_status }}</p>
                     </div>
-
-                    
                 </div>
-                <iframe width="448" height="252" src="https://www.youtube.com/embed/P5mE87PKXEU?si=OD5wT5wz3Q9YdiDz" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <div class="moderation-video-main-area-content-element-preview">\
+                    <img :src="i.preview" alt="">
+                </div>
             </div>
         </div>
         <!-- <div class="moderation-video-main-area-footer">
@@ -165,7 +113,6 @@
 *{
     transition: .2s;
 }
-
 .grid-line {
     height: 40px;
     width: 75px;
@@ -198,6 +145,7 @@
     &:hover{
         cursor: pointer;
         transform: scale(1.01);
+        border: 1px solid #8f8f8f;
     }
 
     &:active{
@@ -221,9 +169,12 @@
         transform: scale(0.99);
     }
 }
-iframe{
+.moderation-video-main-area-content-element-preview{
     border-radius: 15px;
     border: 1px solid #fff;
+    width: 448px;
+    height: 252px;
+
 }
 .moderation-video-main-area-content-element-is-checked {
     color: #fff;
