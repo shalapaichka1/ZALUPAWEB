@@ -1,36 +1,12 @@
 <script setup>
     import api from '@/api';
     import { API } from '../../services/api'
-         function isCheckedFunction(e) {
-            
-            if(e.target.classList.contains('is-checked-button')) {
-                e.target.classList.toggle('is-not-checked-button');
-                e.target.classList.toggle('is-checked-button');
-            }
-            else {
-                e.target.classList.toggle('is-checked-button');
-                e.target.classList.toggle('is-not-checked-button');
-            }
-        }
-
-        // function changeGridToRow() {
-        //     const grid = document.querySelector('.moderation-video-main-area-content');
-
-        //         grid.style.display = 'grid';
-        //         grid.style.gridTemplateColumns = '1fr 1fr';
-        //         grid.style.witdh = '100%';
+    import ButtonChecked from '@/components/ButtonChecked.vue';
+    import ButtonNotChecked from '@/components/ButtonNotChecked.vue';
 
 
-        // }
-
-        // function changeGridToColumn() {
-        //     const grid = document.querySelector('.moderation-video-main-area-content');
 
 
-        //         grid.style.display = 'grid';
-        //         grid.style.gridTemplateColumns = '1fr';
-        //         grid.style.witdh = '50%';
-        // }
 </script>
 
 <script>
@@ -50,6 +26,11 @@
         methods: {
             videoSearch(e) {
                 console.log(e.target.value);
+            },
+            async isCheckedFunction(element, is_checked) {
+                const video = await API.videos.getVideos()
+                await API.videos.changeIsChecked(element.target.id, is_checked)
+                console.log(is_checked)                
             }
         },
     }
@@ -59,27 +40,47 @@
         <div class="moderation-video-main-area-header">
             <h1>Модерация видео</h1>
             <div class="moderation-video-main-area-header-search-area">
-                <input @input="videoSearch" class="moderation-video-main-area-header-search" type="text" name="" id="" placeholder="Поиск"><select name="" id="">
-                <option>Все (11)</option>
-                <option>На модерации (6)</option>
-                <option>Принято (2)</option>
-                <option>Отклонено (3)</option>
-                <option>Просмотрено (2)</option>
-                <option>Не просмотрено (9)</option>
+                <input @input="videoSearch" class="moderation-video-main-area-header-search" type="text" name="" id="" placeholder="Поиск">
+                <select class="moderation-video-main-area-header-search-select" name="video_category" id="">
+                    <option>Категории</option>
+                    <option>Трукрайм</option>
+                    <option>Веселое</option>
+                    <option>Разоблочения</option>
+                    <option>Политика</option>
+                    <option>Другое</option>
+                </select>
+                <select class="moderation-video-main-area-header-search-select" name="" id="">
+                    <option>Все (11)</option>
+                    <option>На модерации (6)</option>
+                    <option>Принято (2)</option>
+                    <option>Отклонено (3)</option>
+                    <option>Просмотрено (2)</option>
+                    <option>Не просмотрено (9)</option>
             </select>
             </div>
 
         </div>
         <div class="moderation-video-main-area-content">
-            <div v-for="(i, documentId) in videoList" :key="documentId" class="moderation-video-main-area-content-element">
+            <div v-for="(i, documentId) in videoList" :key="documentId" :class="'moderation-video-main-area-content-element ' + i.id" >
                 <div class="moderation-video-main-area-content-element-info">
                     <div class="moderation-video-main-area-content-element-info-header">
                     <h1 class="moderation-video-main-area-content-element-title">{{ i.title }}</h1>
-                    <button class="is-checked-button" @click="isCheckedFunction">
-                        <p class="moderation-video-main-area-content-element-check-status">{{ i.is_checked ? 'Просмотренно' : 'Не просмотрено' }}</p>
+
+                    <ButtonNotChecked :id="i.documentId" :is_checked="i.is_checked" v-if="!i.is_checked" @click="isCheckedFunction($event, i.is_checked)"></ButtonNotChecked>
+                    <ButtonChecked :id="i.documentId" :is_checked="i.is_checked" v-else @click="isCheckedFunction($event, i.is_checked )"></ButtonChecked>
+                    <!-- <button class="is-checked-button" @click="isCheckedFunction">
+                        <p  class="moderation-video-main-area-content-element-check-status">{{ i.is_checked ? 'Просмотренно' : 'Не просмотрено' }}</p>
                         <img v-if="i.is_checked" class="is-checked-icon" src="../images/accept.svg" alt="" style="background-color: #85c57a; border-radius: 50%;">
-                    </button>
+                    </button> -->
                     </div>
+                        <select class="moderation-video-main-area-content-element-choose-video-category" name="video_category" id="">
+                            <option>Категории</option>
+                            <option>Трукрайм</option>
+                            <option>Веселое</option>
+                            <option>Разоблочения</option>
+                            <option>Политика</option>
+                            <option>Другое</option>
+                        </select>
                     <a target="_blank" :href="i.url" class="moderation-video-main-area-content-element-link">{{ i.url }}</a>
                     <div>
                     <div class="moderation-video-main-area-content-element-buttons">
@@ -95,16 +96,6 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="moderation-video-main-area-footer">
-            <div class="toggle-switch-body">
-            <p class="toggle-switch-text">Модерация</p>
-            <label class="toggle-switch">
-                <input type="checkbox" id="toggle-switch" />
-                <span class="slider" @click="toggleModeration"></span>
-            </label>
-            </div>
-
-        </div> -->
     </div>
 
 </template>
@@ -113,62 +104,16 @@
 *{
     transition: .2s;
 }
-.grid-line {
-    height: 40px;
-    width: 75px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-right: 15px;
-}
-
-.grid-line img {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    &:hover{
-        transform: scale(1.1);
-        background-color: #6441a5;
-    }
-
-    &:active{
-        transform: scale(0.99);
-    }
-}
-.is-checked-button {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.moderation-video-main-area-content-element-choose-video-category {
+    border-radius: 5px;
+    width: 140px;
+    height: 36px;
+    background-color: #1c1c1c;
     color: #fff;
-    background-color: #1C1C1C;
-
-    &:hover{
-        cursor: pointer;
-        transform: scale(1.01);
-        border: 1px solid #8f8f8f;
-    }
-
-    &:active{
-        transform: scale(0.99);
-    }
+    padding: 5px;
+    user-select: none;
 }
 
-.is-not-checked-button {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #fff;
-    background-color: #858585;
-
-    &:hover{
-        cursor: pointer;
-        transform: scale(1.01);
-    }
-
-    &:active{
-        transform: scale(0.99);
-    }
-}
 .moderation-video-main-area-content-element-preview{
     border-radius: 15px;
     border: 1px solid #fff;
@@ -193,6 +138,8 @@
 .moderation-video-main-area-header-search-area {
     display: flex;
     align-items: center;
+    gap: 10px;
+    justify-content: space-around;
 }
 
 .moderation-video-main-area-header-search {
@@ -205,12 +152,9 @@
     font-family: 'Raleway-SemiBold', sans-serif;
     padding-left: 15px;
     outline: none;
-    margin-right: 10px;
 
-    
         &:hover{
         border: 1px solid #8f8f8f;
-        
     }
 }
 
@@ -251,11 +195,9 @@
 }
 .moderation-video-main-area-content-element-button-no {
     background-color: #FF695B;
-
     &:hover{
         background-color: #da574b;
         border: none;
-        
     }
 
     &:active{
@@ -264,7 +206,6 @@
 }
 .moderation-video-main-area-content-element-button-mb {
     background-color: #FFD28F;
-
     &:hover{
         background-color: #c5b65b;
         border: none;
@@ -274,13 +215,17 @@
         transform: scale(0.9);
     }
 }
+.moderation-video-main-area-content-element-title {
+    font-size: 20px;
+    padding-right: 15px;
+}
 .moderation-video-main-area-content-element-buttons {
     justify-content: space-between;
     display:flex;
 }
 
 .moderation-video-main-area-content-element-buttons button {
-    width: 150px;
+    width: 140px;
     color: #fff;
     border-radius: 5px;
     cursor: pointer;
@@ -291,6 +236,7 @@
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    width: 500px;
     padding-right: 10px;
 }
 
@@ -304,8 +250,8 @@
 }
 .moderation-video-main-area-content-element {
     justify-content: space-between;
-    height: 98%;
-    width: 97%;
+    height: 300px;
+    width: 900px;
     display:flex;
     align-items: center;
     padding: 15px;
@@ -320,18 +266,19 @@
     }
 }
 .moderation-video-main-area-content {
+    height: calc(100vh - 220px);
+    padding: 15px;
+    margin-top: 15px;
     scrollbar-width: smooth;
     overflow-y: scroll;
     overflow-x: hidden;
-    margin-top: 20px;
-    height: calc(100vh - 220px);
     display:grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
-    
+    gap: 15px;
 }
 
-select {
+.moderation-video-main-area-header-search-select {
     width: 300px;
     height: 40px;
     background-color: #1C1C1C;
@@ -342,7 +289,6 @@ select {
     border-radius: 10px;
     padding-left: 15px;
     cursor: pointer;
-
     &:hover{
         border: 1px solid #8f8f8f;
     }
@@ -363,9 +309,9 @@ select {
             grid-template-columns: 1fr;
     }
 
-    .moderation-video-main-area-content-element {
-        height: 98%;            
-        width: 893px;
+        .moderation-video-main-area-content-element {
+            height: 98%;            
+            width: 893px;
     }
         
 }
