@@ -13,6 +13,12 @@ export default defineConfig(({ mode }) => {
   const apiUrl = env.VITE_API_URL
 
   return {
+    server: {
+      hmr: true,
+      match: {
+        usePolling:true
+      }
+    },
     plugins: [vue(), vueJsx()],
     resolve: {
       alias: {

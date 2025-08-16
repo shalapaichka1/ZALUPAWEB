@@ -25,7 +25,6 @@ export default {
 }
 
 </script>
-
 <template>
     <div class="moderation-mods">
         <a class="moderation-mods-elements" v-for="mod in modsInfo" :href="mod.link">

@@ -14,12 +14,14 @@
     "@strapi/client": "^1.4.0",
     "axios": "^1.11.0",
     "firebase": "^10.12.2",
+    "livereload": "^0.10.2",
     "pinia": "^2.1.7",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "strapi": "^3.6.11",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "youtube": "^0.1.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

@@ -1,15 +1,32 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import { instance } from '../axios/instance.js'
-
+import {API} from '../../services/api'
+ 
 const is_checked_status = ref(false)
 const video_id = ref(20)
+const videoList = ref([])
 // import { strapi } from 'strapi'
+
+// Функция для обновления списка видео после изменения статуса "просмотрено"
 
 export const getVideos = async () => {
   try {
     const response = await instance.get('/videos')
-    return { ...response.data.data }
+    console.log(...response.data.data)
+    videoList.value = {...response.data.data}
+    return videoList
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export const getUsers = async () => {
+  try {
+    const response = await instance.get('/users')
+    console.log(...response.data.data)
+    videoList.value = {...response.data.data}
+    return videoList
   } catch (error) {
     console.error(error)
   }
@@ -22,12 +39,14 @@ export const addVideo = async (link, comment_text) => {
   const response = await instance.post('/videos', {
     data: {
       url: link,
+      url_id: link.split('=')[1],
       title: getTitle.data.items[0].snippet.title,
       comment: comment_text,
       agreement_status: 'moderation',
       is_checked: false,
+      sender: 'shalapok'
       // вытаскиваем url_id из ссылки
-      url_id: link.split('=')[1]
+      
     }
   })
   console.log(response.data)
@@ -60,6 +79,7 @@ export const changeIsChecked = async (id, status) => {
     }
   })
   console.log(response.data)
+  await API.videos.refreshVideosModule();
   return response.data
 }
 

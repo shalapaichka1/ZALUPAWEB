@@ -41,15 +41,29 @@ body {
 
 a {
     text-decoration: none;
-    color: $white;
+    color: #6441A5;
     font-family: 'Raleway-SemiBold', sans-serif;
 }
 
-button {
-    border: none;
+button, select, input{
     font-family: 'Raleway-SemiBold', sans-serif;
-    font-size: 14px;
+    font-size: 18px;
     padding: 10px 15px;
-    border-radius: 5px;
+    border-radius: 15px;
+    height: 60px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    outline: none;
+    padding-right: 15px;
+    &:hover{
+        scale: 1.02;
+        filter: brightness(70%);
+    }
+
+    &:active {
+        scale: .99;
+    }
 }

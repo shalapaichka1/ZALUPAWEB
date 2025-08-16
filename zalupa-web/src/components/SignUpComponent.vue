@@ -7,10 +7,8 @@ const signUp = async () => {
     const password = document.getElementsByClassName('password')[0].value
     const repeatPassword = document.getElementsByClassName('repeat-password')[0].value
     
-    return await API.videos.addNewUser(userNickname, email, password)
+    await API.videos.addNewUser(userNickname, email, password)
     // await authStore.signUp({email: email.value, password: password.value})
-
-
 }
 </script>
 
@@ -34,7 +32,6 @@ const checkLogin = () => {
     }
 }
 
-const email = ref('')
 const password = ref('')
 
 const validateEmail = () => {

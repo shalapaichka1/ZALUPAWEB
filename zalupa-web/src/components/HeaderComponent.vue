@@ -29,7 +29,6 @@ const useStore = useAuthStore()
             </div>
 
             <div class="header-user-buttons">
-                <img class="header-notification hub" src="../images/notifications.svg" alt="s">
                 <img class="header-mail hub" src="../images/mail.svg" alt="">
                 <a href="/signup"><img class="header-plus hub" src="../images/user.svg" alt=""></a>
             </div>
@@ -50,7 +49,7 @@ a:active {
         height: 60px;
         text-align: center;
         line-height: 60px;
-        font-size: 14px;
+        font-size: 20px;
         color: white;
         padding: 0 24px;
         text-decoration: none;
@@ -69,11 +68,14 @@ a:active {
     }
 }
 
+.header-logo-title {
+    font-size: 50px;
+}
 .moderation-button {
     transition: 0.3s;
     text-decoration: none;
     color: white;
-    font-size: 14зx;
+    font-size: 20px;
     font-weight: 500;
     margin-left: 10px;
     background-color: #6441a5;

@@ -6,7 +6,7 @@
 </template>
 
 <style>
-.is-checked-button {
+/* .is-checked-button {
     width: 170px;
     display: flex;
     align-items: center;
@@ -24,7 +24,8 @@
         transform: scale(0.99);
     }
 
-img {
-    pointer-events: none;
-}
-}</style>
+    img {
+        pointer-events: none;
+    }
+} */
+</style>

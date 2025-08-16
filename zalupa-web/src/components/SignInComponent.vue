@@ -1,9 +1,28 @@
 <script setup>
+import { API } from '../../services/api'
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const useStore = useAuthStore()
+</script>
 
+<script>
+
+export default {
+        data() {
+            return {
+                login: ref(''),
+                password: ref(''),
+                jwt: ref(''),
+            }
+        },
+        methods: {
+            authorizationFunc(){
+                const response = API.videos.getUsers()
+                console.log(response)
+            }
+        }
+}
 </script>
 
 <template>  
@@ -16,12 +35,15 @@ const useStore = useAuthStore()
             <input class="form-input" type="password" placeholder="Пароль">
         </div>
         <div class="sign-in-buttons">
-            <button class="sign-in-button">Войти</button>
+            <button @click="authorizationFunc()" class="sign-in-button">Войти</button>
                 <p class="or-text">или</p>
             <button class="sign-in-twitch-button">
                 <p>Войти через</p>
             <img src="../images/twitchLogo.svg" alt="">
         </button>
+        <div>
+            
+        </div>
         </div>
 
         <div class="question-buttons">

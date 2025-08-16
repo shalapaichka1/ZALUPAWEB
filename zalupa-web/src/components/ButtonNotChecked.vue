@@ -3,7 +3,7 @@
 </template>
 
 <style>
-.is-not-checked-button {
+/* .is-not-checked-button {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -18,5 +18,5 @@
     &:active{
         transform: scale(0.99);
     }
-}
+} */
 </style>
