@@ -4,6 +4,12 @@ import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const useStore = useAuthStore()
+
+const formData = ref({
+  username: '',
+  password: '',
+  repeatPassword: ''
+})
 </script>
 
 <script>
@@ -18,7 +24,7 @@ export default {
         },
         methods: {
             authorizationFunc(){
-                const response = API.videos.getUsers()
+                const response = API.videos.authorizationUser()
                 console.log(response)
             }
         }
@@ -26,16 +32,16 @@ export default {
 </script>
 
 <template>  
-    <div class="main-window">
+    <form class="main-window" @submit="authorizationFunc()">
         <div class="sign-up-window">
         <h1 class="window-title">Вход в аккаунт</h1>
         <hr>
         <div class="form-inputs">
-            <input class="form-input" type="text" placeholder="Логин">
-            <input class="form-input" type="password" placeholder="Пароль">
+            <input v-model="formData.username" class="form-input" type="text" placeholder="Логин">
+            <input v-model="formData.password" class="form-input" type="password" placeholder="Пароль">
         </div>
         <div class="sign-in-buttons">
-            <button @click="authorizationFunc()" class="sign-in-button">Войти</button>
+            <button type="submit" class="sign-in-button">Войти</button>
                 <p class="or-text">или</p>
             <button class="sign-in-twitch-button">
                 <p>Войти через</p>
@@ -51,7 +57,7 @@ export default {
             <a href="#" class="sign-up-text">Забыли пароль ? </a>
         </div>
     </div>
-    </div>
+</form>
 </template>
 
 <style scoped>

@@ -3,7 +3,6 @@
     import {ref} from 'vue'
     import { API } from '../../services/api'
     import ButtonChecked from '@/components/ButtonChecked.vue';
-    import ButtonNotChecked from '@/components/ButtonNotChecked.vue';
 </script>
 
 <script>
@@ -279,7 +278,6 @@
 
 .moderation-video-main-area-header-search-select {
     background-color: #1C1C1C;
-    border: 1px solid #fff;
     color: #ffffff;
     cursor: pointer;
     &:hover{

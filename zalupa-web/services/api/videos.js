@@ -53,21 +53,19 @@ export const addVideo = async (link, comment_text) => {
   return response.data
 }
 
-// export const addNewUser = async (login, mail, password) => {
-//   const response = await instance.post('/users', {
-//     data: {
-//       username: login,
-//       email: mail,
-//       password: password,
-//       confirmed: false,
-//       blocked: false,
-//       role: 'Public'
-//       // вытаскиваем url_id из ссылки
-//     }
-//   })
-//   console.log(response.data)
-//   return response.data
-// }
+export const addNewUser = async ({username, email, password}) => {
+  const response = await instance.post('/auth/local/register', {
+      username, email, password
+  },
+)
+}
+
+export const authorizationUser = async ({username, password}) => {
+    const response = await instance.post('/auth/local', {
+      identifier: username, password
+  },
+)
+}
 
 export const changeIsChecked = async (id, status) => {
   const response = await axios.put(`http://localhost:1337/api/videos/${id}`, {
@@ -75,7 +73,7 @@ export const changeIsChecked = async (id, status) => {
       is_checked: !status
     },
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     }
   })
   console.log(response.data)

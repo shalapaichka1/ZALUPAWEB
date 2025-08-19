@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@strapi/client": "^1.4.0",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
     "axios": "^1.11.0",
     "firebase": "^10.12.2",
     "livereload": "^0.10.2",
@@ -20,7 +22,7 @@
     "socket.io-client": "^4.7.5",
     "strapi": "^3.6.11",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
+    "vue-router": "^4.5.1",
     "youtube": "^0.1.0"
   },
   "devDependencies": {
