@@ -9,6 +9,14 @@ const videoList = ref([])
 // import { strapi } from 'strapi'
 
 // Функция для обновления списка видео после изменения статуса "просмотрено"
+export const  refreshVideoList = async (videoList) => {
+  try {
+      videoList = await API.videos.getVideos()
+      console.log(this.videoList)
+  } catch (error) {
+      console.error('Ошибка при обновлении списка видео:', error);
+  }
+}
 
 export const getVideos = async () => {
   try {

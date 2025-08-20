@@ -7,7 +7,7 @@ export default {
   components: {MyVideosComponent, AllVideosComponent},
   data(){
     return {
-      videoModuleSwitchCondition: 'my'
+      videoModuleSwitchCondition: 'all'
     }
   },
   methods:{
@@ -22,17 +22,17 @@ export default {
 <template>
   <div class="video-view-header">
     <div class="switch-video-modules">
-      <button @click="switchVideoModulesFunction('my')">Ваши видео</button>
-      <button @click="switchVideoModulesFunction('all')">Все видео</button>
+      <button @click="switchVideoModulesFunction('my', e)">Ваши видео</button>
+      <button @click="switchVideoModulesFunction('all', e)">Все видео</button>
     </div>
     <select class="moderation-video-main-area-header-search-select" name="video_category" id="">
-                    <option>Категории</option>
-                    <option>Трукрайм</option>
-                    <option>Веселое</option>
-                    <option>Разоблочения</option>
-                    <option>Политика</option>
-                    <option>Другое</option>
-                </select>
+      <option>Категории</option>
+      <option>Трукрайм</option>
+      <option>Веселое</option>
+      <option>Разоблочения</option>
+      <option>Политика</option>
+      <option>Другое</option>
+    </select>
   </div>
   <main>
     <MyVideosComponent v-if="videoModuleSwitchCondition === 'my'"/>

@@ -26,7 +26,6 @@
             async refreshVideoList() {
                 try {
                     this.videoList = await API.videos.getVideos()
-                    console.log(this.videoList)
                 } catch (error) {
                     console.error('Ошибка при обновлении списка видео:', error);
                 }
