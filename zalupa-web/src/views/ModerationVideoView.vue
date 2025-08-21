@@ -88,7 +88,7 @@
 <template>
     <div class="moderation-video-main-area">
         <div class="moderation-video-main-area-header">
-            <h1>Модерация видео</h1>
+            <h1 class="moderation-video-title">Модерация видео</h1>
             <div class="moderation-video-main-area-header-search-area">
                 <div class="grid-buttons">
                     <img @click="changeColums('1fr', '1400px', '400px')" src="../images/gridRow.png" alt="">
@@ -118,6 +118,7 @@
         </div>
         <div class="moderation-video-main-area-content">
             <div :v-model="API.videos.refreshVideosModule" v-for="(i, documentId) in videoList" :key="documentId" :class="'moderation-video-list-element ' + i.id" >
+                
                 <div class="video-element-info">
                     <h1 class="video-element-title">{{ i.title }}</h1>
 
@@ -148,10 +149,13 @@
                     </div>
                 </div>
                 <div class="video-element-preview">
+
                     <img class="preview"
+                    
                         :src=getHighQualityThumbnail(i.url_id)
                         :alt="i.title"
                     />
+
                 </div>
             </div>
         </div>
@@ -164,33 +168,38 @@
     transition: .2s;
 }
 
-
+.moderation-video-title {
+    color: white;
+    font-family: 'PPmori-Regular', sans-serif;
+}
 .video-element-title {
     height: 100%;
 }
 .video-element-link {
     font-size: 22px;
     margin-bottom: 15px;
-
     &:hover{
         text-decoration: underline;
     }
 }
+
 .video_element_select {
     grid-column: span 2;
 }
+
 .video_element_info_section_2 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 15px;
     margin-bottom: 15px;
-
 }
+
 .video-element-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 15px;
 }
+
 .video-element-info {
     display: flex;
     flex-direction: column;

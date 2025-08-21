@@ -2,18 +2,23 @@
 
 import MyVideosComponent from '@/components/MyVideosComponent.vue';
 import AllVideosComponent from '@/components/AllVideosComponent.vue';
+import AddVideoComponent from '@/components/AddVideoComponent.vue';
 
 export default {
-  components: {MyVideosComponent, AllVideosComponent},
+  components: {MyVideosComponent, AllVideosComponent, AddVideoComponent},
   data(){
     return {
-      videoModuleSwitchCondition: 'all'
+      videoModuleSwitchCondition: 'all',
+      sendVideoButtonCondition: false,
     }
   },
   methods:{
     async switchVideoModulesFunction(videoStatus) {
       this.videoModuleSwitchCondition = videoStatus
       console.log('Switched to:', videoStatus);
+    },
+    async switchVideoButtonConditionFunction() { 
+      this.sendVideoButtonCondition = true
     }
   }
 }
@@ -38,6 +43,9 @@ export default {
     <MyVideosComponent v-if="videoModuleSwitchCondition === 'my'"/>
     <AllVideosComponent v-else-if="videoModuleSwitchCondition === 'all'"/>
   </main>
+  <button @click="switchVideoButtonConditionFunction()" class="sendVideoButton">Отправить видео</button>
+  <AddVideoComponent v-if="sendVideoButtonCondition"/>
+
 </template>
 
 <style lang="scss">

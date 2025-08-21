@@ -1,12 +1,14 @@
 <script>
 import {API} from '../../services/api'
 import { onMounted } from 'vue';
-
+import {ref} from 'vue'
+import AddVideoComponent from '@/components/AddVideoComponent.vue';
 
 export default {
     data() {
         return {
-            videoList: ([])
+            videoList: ref([]),
+            channelCache: new Map() // Кеш для каналов
         }
     },
     async mounted(){
@@ -14,17 +16,57 @@ export default {
     },
     methods: {
         async refreshVideoList() {
+            try {
+                this.videoList = await API.videos.getVideos()
+            } catch (error) {
+                console.error('Ошибка при обновлении списка видео:', error);
+            }
+        },
+        
+        getHighQualityThumbnail(url_id) {
+            console.log(`https://img.youtube.com/vi/${url_id}/hqdefault.jpg`)
+            return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
+        },
+        
+        // Функция для получения ссылки на канал
+        async getChannelUrl(videoUrl, authorName) {
+            // Проверяем кеш
+            if (this.channelCache.has(videoUrl)) {
+                return this.channelCache.get(videoUrl);
+            }
             
-                try {
-                    this.videoList = await API.videos.getVideos()
-                } catch (error) {
-                    console.error('Ошибка при обновлении списка видео:', error);
-                }
-            },
-            getHighQualityThumbnail(url_id) {
-                console.log(`https://img.youtube.com/vi/${url_id}/hqdefault.jpg`)
-                return  `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
-            },
+            try {
+                // Если есть API для получения channelId, используем его
+                // Например: const channelInfo = await API.getChannelInfo(videoUrl);
+                // return channelInfo.url;
+                
+                // Временное решение: открываем поиск по автору
+                // (замените на реальный API вызов когда будет готово)
+                const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
+                this.channelCache.set(videoUrl, searchUrl);
+                return searchUrl;
+                
+            } catch (error) {
+                console.error('Ошибка при получении канала:', error);
+                // Fallback: поиск по имени автора
+                return `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
+            }
+        },
+        
+        // Обработчик клика по автору
+        async handleAuthorClick(videoUrl, authorName, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            try {
+                const channelUrl = await this.getChannelUrl(videoUrl, authorName);
+                window.open(channelUrl, '_blank');
+            } catch (error) {
+                console.error('Ошибка при открытии канала:', error);
+                // Fallback: обычный поиск
+                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank');
+            }
+        }
     }
 }
 </script>
@@ -32,13 +74,22 @@ export default {
 <template>
     <div class="all-video-module">
         <div class="all-video-element" v-for="(el, documentId) in videoList" :key="documentId">
-            <img class="preview" :src=getHighQualityThumbnail(el.url_id) :alt="el.title">
-                <div class="overlay">
-                    <h1 class="el-title">{{ el.title }}</h1>
-                    <a class="look-botton" :href="el.url">Смотреть</a>
-                </div>
+            <div v-if="((new Date().getDate() - new Date(el.send_date).getDate()) -1 ) < 1" class="new-video-notice">Новое</div>
+
+            <img class="preview" :src="getHighQualityThumbnail(el.url_id)" :alt="el.title">
+            <div class="overlay">
+                <!-- Добавляем кликабельное имя автора -->
+                <h1 class="el-title el-author" 
+                    @click="handleAuthorClick(el.url, el.author, $event)"
+                    :title="`Перейти на канал ${el.author}`">
+                    {{ el.author }}
+                </h1>
+                <h1 class="el-title">{{ el.title }}</h1>
+                <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
+            </div>
         </div>
     </div>
+    <AddVideoComponent/>
 </template>
 
 <style>
@@ -46,6 +97,23 @@ export default {
   font-family: 'PPmori-Regular';
   src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('woff2');
 }
+
+.new-video-notice {
+    position: absolute;
+    right: 0;
+    color: aliceblue;
+    font-size: 20px;
+    z-index: 1;
+    background-color: #ff9d35;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 15px;
+    font-family:'PPmori-Regular', sans-serif;
+    font-weight: 800;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
 .look-botton {
     position: relative;
     background-color: #6441a1;
@@ -57,23 +125,35 @@ export default {
     font-size: 24px;
     border-radius: 15px;
     border: 1px solid #00000000;
-
-    &:hover {
-        scale: 1.05;
-        background-color: #09090985;
-        border: 1px solid #6441a1;
-    }
+    transition: all 0.3s ease;
 }
+
+.look-botton:hover {
+    scale: 1.05;
+    background-color: #09090985;
+    border: 1px solid #6441a1;
+}
+
+.look-botton:active {
+    transform: scale(.98)
+}
+
 .all-video-module {
+    padding: 15px;
+    height: 84vh;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    justify-items: center;
-    overflow-y: auto;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin-top: 15px;
+    justify-content: center;
+    gap: 15px;
+    place-items: center;
+    overflow: auto;
+    scroll-behavior: smooth;
 }
 
 .preview {
-    width: 41.5vh;
+    width: 100%;
+    transition: transform 0.3s ease;
 }
 
 .overlay {
@@ -89,41 +169,83 @@ export default {
     background-color: #00000092;
     overflow: hidden;
     height: 100%;
-    transition: .2s ease-out;
+    transition: all 0.3s ease-out;
     opacity: 0;
-    border: 2px solid #ffffff0c;
+    border: 3px solid #ffffff0c;
     justify-content: space-between;
     align-content: space-around;
     flex-direction: column;
+    border-radius: 15px;
 }
+
 .all-video-element {
-    height: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    height: 480px;
     position: relative;
     overflow: hidden;
     border-radius: 15px;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
 
-    &:hover .preview{
-        transition: .2s ease-in;
-        transform: scale(1.3);
-    }
+.all-video-element:hover .new-video-notice {
+    opacity: 0;
+}
 
-    &:hover {
-        z-index: 1;
-        
-    }
+.all-video-element:hover .preview {
+    transform: scale(1.3);
+}
+
+.all-video-element:hover {
+    transform: scale(1.05);
 }
 
 .all-video-element:hover .overlay {
-  width: 100%;
-  opacity: 1;
+    width: 100%;
+    opacity: 1;
 }
 
 .overlay > h1 {
     text-wrap: wrap;
-    font-family:'PPmori-Regular', sans-serif;
+    font-family: 'PPmori-Regular', sans-serif;
     font-weight: 600;
     color: white;
     font-size: 40px;
     overflow: hidden;
+}
+
+/* Стили для кликабельного имени автора */
+.el-author {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.el-author:hover {
+    color: #6441a1 !important;
+    text-shadow: 0 0 10px rgba(100, 65, 161, 0.5);
+}
+
+.el-author::after {
+    content: '🔗';
+    margin-left: 8px;
+    font-size: 24px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.el-author:hover::after {
+    opacity: 1;
+}
+
+/* Индикатор загрузки при клике */
+.el-author.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.el-author.loading::after {
+    content: '⏳';
+    opacity: 1;
 }
 </style>

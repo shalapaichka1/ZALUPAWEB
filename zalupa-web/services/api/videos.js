@@ -52,7 +52,9 @@ export const addVideo = async (link, comment_text) => {
       comment: comment_text,
       agreement_status: 'moderation',
       is_checked: false,
-      sender: 'shalapok'
+      sender: 'shalapok',
+      send_date: new Date(),
+      author: getTitle.data.items[0].snippet.channelTitle,
       // вытаскиваем url_id из ссылки
       
     }
