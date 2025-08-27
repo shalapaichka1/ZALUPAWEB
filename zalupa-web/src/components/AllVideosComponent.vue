@@ -1,14 +1,25 @@
 <script>
 import {API} from '../../services/api'
-import { onMounted } from 'vue';
+import { onMounted} from 'vue';
 import {ref} from 'vue'
 import AddVideoComponent from '@/components/AddVideoComponent.vue';
 
 export default {
+    components: {addEventListener},
     data() {
         return {
             videoList: ref([]),
-            channelCache: new Map() // Кеш для каналов
+            channelCache: new Map(),
+            videoStatuses: {
+                0: 'На модерации ',
+                1: 'Принято',
+                2: 'Отклонено'
+            },
+            videoStatusColors: {
+                0: '#FFD28F',
+                1: '#ACFF9E',
+                2: '#FF695B'
+            }
         }
     },
     async mounted(){
@@ -74,7 +85,11 @@ export default {
 <template>
     <div class="all-video-module">
         <div class="all-video-element" v-for="(el, documentId) in videoList" :key="documentId">
-            <div v-if="((new Date().getDate() - new Date(el.send_date).getDate()) -1 ) < 1" class="new-video-notice">Новое</div>
+            <div class="overlay-info">
+                <div class="new-video-notice" v-if="((new Date().getDate() - new Date(el.send_date).getDate()) -1 ) < 1" ></div>
+                <div :style="{ backgroundColor: videoStatusColors[el.agreement_status] }" class="video-agreement">{{ videoStatuses[el.agreement_status]}}</div>
+
+            </div>
 
             <img class="preview" :src="getHighQualityThumbnail(el.url_id)" :alt="el.title">
             <div class="overlay">
@@ -98,7 +113,7 @@ export default {
   src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('woff2');
 }
 
-.new-video-notice {
+.new-video-notice, .video-agreement{
     position: absolute;
     right: 0;
     color: aliceblue;
@@ -110,8 +125,17 @@ export default {
     border-radius: 15px;
     font-family:'PPmori-Regular', sans-serif;
     font-weight: 800;
-    opacity: 1;
     transition: opacity 0.3s ease;
+}
+
+.video-agreement {
+    left: 0;
+    width: max-content;
+    color: black;
+}
+
+.all-video-element:hover .new-video-notice, .all-video-element:hover .video-agreement {
+    opacity: 0;
 }
 
 .look-botton {
@@ -180,16 +204,13 @@ export default {
 
 .all-video-element {
     border: 1px solid rgba(255, 255, 255, 0.5);
-    height: 480px;
+    height: 32vh;
     position: relative;
     overflow: hidden;
     border-radius: 15px;
     z-index: 1;
     transition: transform 0.3s ease;
-}
-
-.all-video-element:hover .new-video-notice {
-    opacity: 0;
+    min-width: max-content;
 }
 
 .all-video-element:hover .preview {

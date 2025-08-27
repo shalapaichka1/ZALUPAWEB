@@ -3,58 +3,131 @@ import { API } from '../../services/api'
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
-const useStore = useAuthStore()
+const authStore = useAuthStore()
 
 const formData = ref({
   username: '',
-  password: '',
-  repeatPassword: ''
+  password: ''
 })
-</script>
 
-<script>
+const errorMessage = ref('')
+const isLoading = ref(false)
 
-export default {
-        data() {
-            return {
-                login: ref(''),
-                password: ref(''),
-                jwt: ref(''),
-            }
-        },
-        methods: {
-            authorizationFunc(){
-                const response = API.videos.authorizationUser()
-                console.log(response)
-            }
-        }
+// Функция для установки cookie
+const setCookie = (name, value, days = 30) => {
+  const date = new Date()
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
+  const expires = `expires=${date.toUTCString()}`
+  document.cookie = `${name}=${value};${expires};path=/`
+}
+
+// Функция авторизации
+const authorizationFunc = async (e) => {
+  e.preventDefault()
+  
+  if (!formData.value.username || !formData.value.password) {
+    errorMessage.value = 'Заполните все поля'
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    // Проверяем существование пользователя и авторизуем
+    const response = await API.videos.authorizationUser(
+      formData.value.username, 
+      formData.value.password
+    )
+    
+    if (response.success) {
+      // Сохраняем JWT токен и логин
+      if (response.token) {
+        setCookie('jwt_token', response.token)
+      }
+      setCookie('username', formData.value.username)
+      
+      // Обновляем состояние хранилища
+      authStore.setUser({
+        username: formData.value.username,
+        isAuthenticated: true
+      })
+      
+      // Закрываем окно авторизации
+      authStore.isChatOpen = false
+      
+      console.log('Авторизация успешна')
+    } else {
+      errorMessage.value = response.message || 'Ошибка авторизации'
+    }
+    
+  } catch (error) {
+    console.error('Ошибка авторизации:', error)
+    errorMessage.value = 'Произошла ошибка при авторизации'
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
 <template>  
-    <form class="main-window" @submit="authorizationFunc()">
+    <form class="main-window" @submit="authorizationFunc">
         <div class="sign-up-window">
         <h1 class="window-title">Вход в аккаунт</h1>
         <hr>
+        
+        <!-- Сообщение об ошибке -->
+        <div v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+        </div>
+        
         <div class="form-inputs">
-            <input v-model="formData.username" class="form-input" type="text" placeholder="Логин">
-            <input v-model="formData.password" class="form-input" type="password" placeholder="Пароль">
+            <input 
+                v-model="formData.username" 
+                class="form-input" 
+                type="text" 
+                placeholder="Логин"
+                :disabled="isLoading"
+            >
+            <input 
+                v-model="formData.password" 
+                class="form-input" 
+                type="password" 
+                placeholder="Пароль"
+                :disabled="isLoading"
+            >
         </div>
+        
         <div class="sign-in-buttons">
-            <button type="submit" class="sign-in-button">Войти</button>
-                <p class="or-text">или</p>
-            <button class="sign-in-twitch-button">
-                <p>Войти через</p>
-            <img src="../images/twitchLogo.svg" alt="">
-        </button>
-        <div>
+            <button 
+                type="submit" 
+                class="sign-in-button"
+                :disabled="isLoading"
+            >
+                {{ isLoading ? 'Вход...' : 'Войти' }}
+            </button>
             
-        </div>
+            <p class="or-text">или</p>
+            
+            <button 
+                type="button" 
+                class="sign-in-twitch-button"
+                :disabled="isLoading"
+            >
+                <p>Войти через</p>
+                <img src="../images/twitchLogo.svg" alt="Twitch">
+            </button>
         </div>
 
         <div class="question-buttons">
-            <a @click="useStore.isChatOpen = !useStore.isChatOpen" href="#" class="sign-up-text">Нет аккаунта ? </a>
-            <a href="#" class="sign-up-text">Забыли пароль ? </a>
+            <a 
+                @click="authStore.isChatOpen = !authStore.isChatOpen" 
+                href="#" 
+                class="sign-up-text"
+            >
+                Нет аккаунта ?
+            </a>
+            <a href="#" class="sign-up-text">Забыли пароль ?</a>
         </div>
     </div>
 </form>
@@ -82,6 +155,7 @@ export default {
     border-radius: 5px;
     border: 2px solid #6F6F6F;
     padding: 100px 50px;
+    position: relative;
 }
 
 .window-title {
@@ -96,13 +170,23 @@ hr {
     border: 1px solid #6441a5;
     width: 80%;
     margin: 0 auto;
-    /* box-shadow: 0px 0px 5px #6441a5; */
     border-radius: 5px;
+}
+
+.error-message {
+    background: #FF695B;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-family: 'Raleway-SemiBold', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    animation: slideDown 0.3s ease;
 }
 
 .form-inputs {
     width: 400px;
-    margin-top: 40px;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -124,9 +208,15 @@ hr {
     &:focus {
         border: 2px solid #6441a5;
     }
+    
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 }
 
 .sign-up-text {
+    cursor: pointer;
     font-family: 'Raleway-SemiBold', sans-serif;
     color: #6441a5;
     font-size: 14px;
@@ -141,6 +231,7 @@ hr {
     display: flex;
     align-items: center;
     gap: 100px;
+    margin-top: 20px;
 }
 
 .sign-in-twitch-button {
@@ -149,21 +240,67 @@ hr {
     justify-content: center;
     gap: 10px;
     height: 40px;
+    padding: 0 20px;
     background: #6441a5;
+    border: none;
     border-radius: 5px;
     font-family: 'Raleway-SemiBold', sans-serif;
     color: white;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    
+    &:hover:not(:disabled) {
+        opacity: 0.9;
+    }
+    
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.sign-in-button {
+    height: 40px;
+    padding: 0 30px;
+    background: #1c1c1c;
+    border: 1px solid #6441a5;
+    border-radius: 5px;
+    font-family: 'Raleway-SemiBold', sans-serif;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover:not(:disabled) {
+        background-color: #6441a5;
+    }
+    
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        border-color: #6F6F6F;
+    }
 }
 
 .sign-in-buttons {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
 .or-text {
     font-family: 'Raleway-SemiBold', sans-serif;
     color: white;
     font-size: 14px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>

@@ -1,19 +1,23 @@
-<script lang="js">
+<script>
 import { API } from '../../services/api'
 
 export default {
-    data(){
+    data() {
         return {
             videoList: [],
             isVisible: true,
             isLoading: false,
-            errorMessage: ''
+            errorMessage: '',
+            link: '', // Добавляем реактивные данные
+            comment_text: '' // Добавляем реактивные данные
         }
     },
     methods: {
         removeComponent() {
             this.isVisible = !this.isVisible
             this.errorMessage = '' // Сбрасываем ошибку при закрытии
+            this.link = '' // Очищаем поля при закрытии
+            this.comment_text = '' // Очищаем поля при закрытии
         },
         
         async checkVideoExists(link) {
@@ -28,8 +32,9 @@ export default {
         },
 
         async notification() {
-            const link = document.getElementsByClassName('add-video-module-input')[0].value
-            const comment_text = document.getElementsByClassName('add-video-comment-input')[0].value
+            // Используем реактивные данные вместо прямого доступа к DOM
+            const link = this.link;
+            const comment_text = this.comment_text;
             
             // Валидация
             if (link === '') {
@@ -38,11 +43,11 @@ export default {
             }
             
             if (link.includes('vkvideo')) {
-                this.showError('Видео из VK не поддерживаются')
+                this.showError('Сасеб')
                 return
             }
             
-            if (link.length !== 43 || !link.startsWith('https://www.youtube.com/watch?v=')) {
+            if (!link.includes('www.youtube.com/watch?')) {
                 this.showError('Неверная ссылка на YouTube видео')
                 return
             }
@@ -59,10 +64,13 @@ export default {
                     return;
                 }
 
-                // Если видео нет в базе - добавляем
                 await API.videos.addVideo(link, comment_text);
                 this.removeComponent();
-                await API.videos.refreshVideoList();
+                
+                // Если есть метод обновления списка видео
+                if (API.videos.refreshVideoList) {
+                    await API.videos.refreshVideoList();
+                }
                 
             } catch (error) {
                 console.error('Ошибка при добавлении видео:', error);
@@ -81,13 +89,17 @@ export default {
         },
 
         changeColorInfo() {
-            const link = document.getElementsByClassName('add-video-module-input')[0].value
-            if (link.length !== 43 || !link.startsWith('https://www.youtube.com/watch?v=')) {
-                document.getElementsByClassName('add-video-module-input')[0].style.border = '1px solid #FF695B'
+            const link = this.link;
+            const inputElement = this.$el.querySelector('.add-video-module-input');
+            
+            if (inputElement) {
+                if (link.length < 42 || !link.includes('www.youtube.com/watch?')) {
+                    inputElement.style.border = '1px solid #FF695B';
+                } else {
+                    inputElement.style.border = '1px solid #ACFF9E';
+                }
             }
-            else {
-                document.getElementsByClassName('add-video-module-input')[0].style.border = '1px solid #ACFF9E'
-            }
+            
             this.errorMessage = ''; // Сбрасываем ошибку при изменении ссылки
         }
     }
@@ -104,8 +116,20 @@ export default {
                 {{ errorMessage }}
             </div>
             
-            <input @input="changeColorInfo" class="add-video-module-input" type="text" placeholder="Ссылка на видео">
-            <input class="add-video-comment-input" type="text" placeholder="Комментарий (не более 50 символов, не обязательно)">
+            <input 
+                v-model="link"
+                @input="changeColorInfo" 
+                class="add-video-module-input" 
+                type="text" 
+                placeholder="Ссылка на видео"
+            >
+            <input 
+                v-model="comment_text" 
+                class="add-video-comment-input" 
+                type="text" 
+                placeholder="Комментарий (не более 50 символов, не обязательно)"
+                maxlength="50"
+            >
             
             <button 
                 class="add-video-module-button" 
@@ -151,7 +175,7 @@ export default {
         flex-direction: column;
         gap: 15px;
         width: 800px;
-        height: 280px; /* Увеличили высоту для сообщения об ошибке */
+        height: 280px;
         position: relative;
     }
 
@@ -186,6 +210,10 @@ export default {
         font-family: 'RaleWay', sans-serif;
         color: white;
         outline: none;
+    }
+
+    .add-video-module input:focus {
+        border-color: #6441a5;
     }
 
     .add-video-module button {

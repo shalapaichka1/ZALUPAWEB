@@ -6,10 +6,16 @@ import {API} from '../../services/api'
 const is_checked_status = ref(false)
 const video_id = ref(20)
 const videoList = ref([])
+const videoStatuses = [{
+    0: 'На модерации',
+    1: 'Принято',
+    2: 'Отклонено'
+  }
+]
 // import { strapi } from 'strapi'
 
 // Функция для обновления списка видео после изменения статуса "просмотрено"
-export const  refreshVideoList = async (videoList) => {
+export const refreshVideoList = async (videoList) => {
   try {
       videoList = await API.videos.getVideos()
       console.log(this.videoList)
@@ -40,7 +46,10 @@ export const getUsers = async () => {
   }
 }
 
-export const addVideo = async (link, comment_text) => {
+export const addVideo = async (link, comment_text, send_date_res) => {
+
+  const send_date_red = new Date().toISOString().split('T')[0]; // 2024-01-19
+
   const getTitle = await axios.get(
     `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${link.split('=')[1]}&key=AIzaSyAd_rFuqgRiTnoUv0SzJfgVGdOauNwHYAw`
   )
@@ -49,14 +58,12 @@ export const addVideo = async (link, comment_text) => {
       url: link,
       url_id: link.split('=')[1],
       title: getTitle.data.items[0].snippet.title,
-      comment: comment_text,
-      agreement_status: 'moderation',
-      is_checked: false,
       sender: 'shalapok',
-      send_date: new Date(),
+      comment: comment_text,
+      agreement_status: '0',
+      is_checked: false,
+      send_date: send_date_res,
       author: getTitle.data.items[0].snippet.channelTitle,
-      // вытаскиваем url_id из ссылки
-      
     }
   })
   console.log(response.data)
@@ -106,4 +113,11 @@ export const getCookie = (name) => {
     }
   }
   return cookieValue
+}
+
+export const checkVideoExists = async (link) => {
+  const response = await axios.get(`http://localhost:1337/api/videos/`)
+  if (response.data.includes(link)){
+    return true
+  }
 }
