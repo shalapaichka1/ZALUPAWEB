@@ -1,90 +1,71 @@
-<script>
-import {API} from '../../services/api'
-import { onMounted} from 'vue';
-import {ref} from 'vue'
-import AddVideoComponent from '@/components/AddVideoComponent.vue';
+<script setup>
+    import {API} from '../../services/api'
+    import {ref} from 'vue'
+    import AddVideoComponent from '@/components/AddVideoComponent.vue';
 
-export default {
-    components: {addEventListener},
-    data() {
-        return {
-            videoList: ref([]),
-            channelCache: new Map(),
-            videoStatuses: {
+    const videoList = ref([])
+    const channelCache = new Map()
+    const videoStatuses = {
                 0: 'На модерации ',
                 1: 'Принято',
                 2: 'Отклонено'
-            },
-            videoStatusColors: {
+            }
+    const videoStatusColors = {
                 0: '#FFD28F',
                 1: '#ACFF9E',
                 2: '#FF695B'
             }
-        }
-    },
-    async mounted(){
-        await this.refreshVideoList();
-    },
-    methods: {
-        async refreshVideoList() {
-            try {
-                this.videoList = await API.videos.getVideos()
-            } catch (error) {
-                console.error('Ошибка при обновлении списка видео:', error);
-            }
-        },
-        
-        getHighQualityThumbnail(url_id) {
-            console.log(`https://img.youtube.com/vi/${url_id}/hqdefault.jpg`)
-            return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
-        },
-        
-        // Функция для получения ссылки на канал
-        async getChannelUrl(videoUrl, authorName) {
-            // Проверяем кеш
-            if (this.channelCache.has(videoUrl)) {
-                return this.channelCache.get(videoUrl);
-            }
-            
-            try {
-                // Если есть API для получения channelId, используем его
-                // Например: const channelInfo = await API.getChannelInfo(videoUrl);
-                // return channelInfo.url;
-                
-                // Временное решение: открываем поиск по автору
-                // (замените на реальный API вызов когда будет готово)
-                const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
-                this.channelCache.set(videoUrl, searchUrl);
-                return searchUrl;
-                
-            } catch (error) {
-                console.error('Ошибка при получении канала:', error);
-                // Fallback: поиск по имени автора
-                return `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
-            }
-        },
-        
-        // Обработчик клика по автору
-        async handleAuthorClick(videoUrl, authorName, event) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            try {
-                const channelUrl = await this.getChannelUrl(videoUrl, authorName);
-                window.open(channelUrl, '_blank');
-            } catch (error) {
-                console.error('Ошибка при открытии канала:', error);
-                // Fallback: обычный поиск
-                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank');
-            }
+
+    function mounted(){
+        refreshVideoList();
+    }
+
+    async function refreshVideoList() {
+        try {
+            videoList.value = await API.videos.getVideos()
+        } catch (error) {
+            console.error('Ошибка при обновлении списка видео:', error);
         }
     }
-}
+        
+    function getHighQualityThumbnail(url_id) {
+        return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
+    }
+        
+    function getChannelUrl(videoUrl, authorName) {
+        if (channelCache.has(videoUrl)) {
+            return channelCache.get(videoUrl);
+        }
+            
+        try {
+            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
+            channelCache.set(videoUrl, searchUrl);
+            return searchUrl;
+                
+        } catch (error) {
+            console.error('Ошибка при получении канала:', error);
+            return `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
+        }
+    }
+
+    async function handleAuthorClick(videoUrl, authorName, event) {
+        event.preventDefault();
+        event.stopPropagation();
+            
+        try {
+            const channelUrl = await getChannelUrl(videoUrl, authorName);
+            window.open(channelUrl, '_blank');
+        } catch (error) {
+            console.error('Ошибка при открытии канала:', error);
+            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank');
+        }
+    }
+    mounted()
 </script>
 
 <template>
     <div class="all-video-module">
-        <div class="all-video-element" v-for="(el, documentId) in videoList" :key="documentId">
+        <div class="all-video-element" v-for="(el, documentId) in videoList.value" :key="documentId">
             <div class="overlay-info">
                 <div class="new-video-notice" v-if="((new Date().getDate() - new Date(el.send_date).getDate()) -1 ) < 1" ></div>
                 <div :style="{ backgroundColor: videoStatusColors[el.agreement_status] }" class="video-agreement">{{ videoStatuses[el.agreement_status]}}</div>
@@ -164,7 +145,7 @@ export default {
 
 .all-video-module {
     padding: 15px;
-    height: 84vh;
+    height: 82vh;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-top: 15px;
@@ -224,6 +205,8 @@ export default {
 .all-video-element:hover .overlay {
     width: 100%;
     opacity: 1;
+
+    
 }
 
 .overlay > h1 {
@@ -243,6 +226,7 @@ export default {
 }
 
 .el-author:hover {
+    z-index: 100000;
     color: #6441a1 !important;
     text-shadow: 0 0 10px rgba(100, 65, 161, 0.5);
 }

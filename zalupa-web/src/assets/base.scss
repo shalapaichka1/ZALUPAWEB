@@ -58,6 +58,10 @@ button, select, input{
     gap: 15px;
     outline: none;
     padding-right: 15px;
+    background-color: #15151570;
+    color: white;
+    border: 1px solid #494949;
+
     &:hover{
         scale: 1.02;
         filter: brightness(70%);

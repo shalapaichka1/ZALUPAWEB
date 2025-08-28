@@ -1,90 +1,49 @@
 <script setup>
-    import api from '@/api';
     import {ref} from 'vue'
     import { API } from '../../services/api'
     import ButtonChecked from '@/components/ButtonChecked.vue';
-</script>
 
-<script>
-        export default {
-        data() {
-            return {
-                videoList: ref([]),
-                gridColumns: '1fr 1fr',
-                columns2Width: '1000px',
-                columns2Height: '400px',
-                isChecked: false,
-                buttonYes: '#ACFF9E',
-                buttonMb: '#FFD28F',
-                buttonNo: '#FF695B',
-            }
-        },
-        async mounted() {
-            await this.refreshVideoList();
-        },
-        methods: {
-            async refreshVideoList() {
-                try {
-                    this.videoList = await API.videos.getVideos()
-                } catch (error) {
-                    console.error('Ошибка при обновлении списка видео:', error);
-                }
-            },
-            async videoSearch(e) {
-                console.log(e.target.value);
-            },
-            async isCheckedFunction(element, is_checked) {
-            // Получаем id видео из элемента события
-                try {
-                    // Меняем статус is_checked на противоположный
-                    await API.videos.changeIsChecked(element, is_checked);
-                    // Обновляем список видео, чтобы обновился контент и кнопка
-                    await this.refreshVideoList();
-                } catch (error) {
-                    console.error('Ошибка при изменении статуса видео:', error);
-                }
-            },
-            async startGifPreview(videoId) {
-    // Находим элемент превью по id
-                const previewElement = document.getElementById(`video-preview-${videoId}`);
-                if (previewElement) {
-                    // Сохраняем исходное изображение, чтобы вернуть его позже
-                    previewElement.dataset.staticSrc = previewElement.src;
-                    // Меняем src на gif-анимацию
-                    previewElement.src = getGifUrlForVideo(videoId);
-                }
-            },
-            async stopGifPreview(videoId) {
-                // Находим элемент превью по id
-                const previewElement = document.getElementById(`video-preview-${videoId}`);
-                if (previewElement && previewElement.dataset.staticSrc) {
-                    // Возвращаем исходное изображение
-                    previewElement.src = previewElement.dataset.staticSrc;
-                    // Очищаем сохранённый src
-                    delete previewElement.dataset.staticSrc;
-                }
-            },
-             getHighQualityThumbnail(url_id) {
-                console.log(`https://img.youtube.com/vi/${url_id}/hqdefault.jpg`)
-                return  `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
-            },
-            changeColums(columns, w1, h1){
-                const area = document.querySelector('.moderation-video-main-area-content')
-                const elements = document.querySelectorAll('.moderation-video-main-area-content-element')
-                    area.style.gridTemplateColumns=columns;
-                    elements.forEach(element => {
-                    element.style.width = w1;
-                    element.style.height = h1;
-                    });
-            },
-            changeStatusButton(isChecked){
-                isChecked = API.videos.getVideos
-                console.log(isChecked)
-            }
-        },
+    const videoList = ref([])
+
+    function mounted() {
+        refreshVideoList();
     }
 
+    async function refreshVideoList() {
+        try {
+            videoList.value = await API.videos.getVideos()
+        } catch (error) {
+            console.error('Ошибка при обновлении списка видео:', error);
+        }
+    }
+
+    function videoSearch(e) {
+        console.log(e.target.value);
+    }
+
+    function getHighQualityThumbnail(url_id) {
+        console.log(`https://img.youtube.com/vi/${url_id}/hqdefault.jpg`)
+        return  `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
+    }
+
+    function changeColums(columns, w1, h1){
+        const area = document.querySelector('.moderation-video-main-area-content')
+        const elements = document.querySelectorAll('.moderation-video-main-area-content-element')
+        area.style.gridTemplateColumns=columns;
+        elements.forEach(element => {
+        element.style.width = w1;
+        element.style.height = h1;
+        });
+    }
+
+    function changeStatusButton(isChecked){
+        isChecked = API.videos.getVideos
+        console.log(isChecked)
+    }
+
+    mounted()
 </script>
+
 <template>
     <div class="moderation-video-main-area">
         <div class="moderation-video-main-area-header">
@@ -117,7 +76,7 @@
 
         </div>
         <div class="moderation-video-main-area-content">
-            <div :v-model="API.videos.refreshVideosModule" v-for="(i, documentId) in videoList" :key="documentId" :class="'moderation-video-list-element ' + i.id" >
+            <div :v-model="API.videos.refreshVideosModule" v-for="(i, documentId) in videoList.value" :key="documentId" :class="'moderation-video-list-element ' + i.id" >
                 
                 <div class="video-element-info">
                     <h1 class="video-element-title">{{ i.title }}</h1>
@@ -142,9 +101,9 @@
 
                     </div>
                     <div class="video-element-buttons">
-                        <button style="background-color: #ACFF9E;" class="button-yes">Смотрим</button>
-                        <button style="background-color: #FFD28F;" class="button-mb">Мб смотрим</button>
-                        <button style="background-color: #FF695B;" class="button-no">Хуйня</button>
+                        <button style="background-color: #ACFF9E; color: #1c1c1c;" class="button-yes">Смотрим</button>
+                        <button style="background-color: #FFD28F; color: #1c1c1c;" class="button-mb">Мб смотрим</button>
+                        <button style="background-color: #FF695B; color: #1c1c1c;" class="button-no">Хуйня</button>
                     </div>
                     </div>
                 </div>
@@ -284,15 +243,6 @@
     cursor:auto;
 }
 
-.moderation-video-main-area-header-search-select {
-    background-color: #1C1C1C;
-    color: #ffffff;
-    cursor: pointer;
-    &:hover{
-        border: 1px solid #8f8f8f;
-    }
-}
-
 .moderation-video-main-area {
     padding: 15px;    
 }
@@ -303,26 +253,4 @@
     justify-content: space-between;
     align-items: center;
 }
-
-@keyframes opacityChange{
-
-}
-/* @media screen and (max-width: 1500px) {
-        .moderation-video-main-area-content {
-            grid-template-columns: 1fr;
-    }
-        .moderation-video-main-area-content-element {
-            width: 99%;
-    }  
-        .moderation-video-main-area-content-element-info {
-            width: 66%;
-        }
-        .moderation-video-main-area-content-element-buttons button, .moderation-video-main-area-content-element-choose-video-category {
-            width: 30%;
-        }
-        .grid-buttons {
-            opacity: 0;
-
-        }
-} */
 </style>

@@ -1,109 +1,88 @@
-<script>
-import { API } from '../../services/api'
+<script setup>
+    import { API } from '../../services/api'
+    import { isVNode, ref } from 'vue'
+    const isLoading = ref(false)
+    const errorMessage = ref('')
+    const url = ref('')
+    const comment_text = ref('')
+    const isVisible = ref(API.videos.addVideoComponentIsVisibleFunction())
 
-export default {
-    data() {
-        return {
-            videoList: [],
-            isVisible: true,
-            isLoading: false,
-            errorMessage: '',
-            link: '', // Добавляем реактивные данные
-            comment_text: '' // Добавляем реактивные данные
-        }
-    },
-    methods: {
-        removeComponent() {
-            this.isVisible = !this.isVisible
-            this.errorMessage = '' // Сбрасываем ошибку при закрытии
-            this.link = '' // Очищаем поля при закрытии
-            this.comment_text = '' // Очищаем поля при закрытии
-        },
-        
-        async checkVideoExists(link) {
-            try {
-                // Предполагаем, что у API есть метод для проверки существования видео
-                const response = await API.videos.checkVideoExists(link);
-                return response.exists;
+    function removeComponent() {
+        isVisible.value = false
+        errorMessage.value = ''
+        url.value = ''
+        comment_text.value = ''
+    }
+    async function checkVideoExists(link) {
+        try {
+            const response = await API.videos.checkVideoExists(link);
+        return response.exists;
             } catch (error) {
-                console.error('Ошибка при проверке видео:', error);
-                return false;
-            }
-        },
-
-        async notification() {
-            // Используем реактивные данные вместо прямого доступа к DOM
-            const link = this.link;
-            const comment_text = this.comment_text;
-            
-            // Валидация
-            if (link === '') {
-                this.showError('Вы не ввели ссылку на видео!')
-                return
-            }
-            
-            if (link.includes('vkvideo')) {
-                this.showError('Сасеб')
-                return
-            }
-            
-            if (!link.includes('www.youtube.com/watch?')) {
-                this.showError('Неверная ссылка на YouTube видео')
-                return
-            }
-
-            this.isLoading = true;
-            this.errorMessage = '';
-
-            try {
-                // Проверяем, существует ли видео уже в базе
-                const videoExists = await this.checkVideoExists(link);
-                
-                if (videoExists) {
-                    this.showError('Такое видео уже есть в базе!');
-                    return;
-                }
-
-                await API.videos.addVideo(link, comment_text);
-                this.removeComponent();
-                
-                // Если есть метод обновления списка видео
-                if (API.videos.refreshVideoList) {
-                    await API.videos.refreshVideoList();
-                }
-                
-            } catch (error) {
-                console.error('Ошибка при добавлении видео:', error);
-                this.showError('Произошла ошибка при добавлении видео');
-            } finally {
-                this.isLoading = false;
-            }
-        },
-
-        showError(message) {
-            this.errorMessage = message;
-            // Можно добавить автоматическое скрытие ошибки через 5 секунд
-            setTimeout(() => {
-                this.errorMessage = '';
-            }, 5000);
-        },
-
-        changeColorInfo() {
-            const link = this.link;
-            const inputElement = this.$el.querySelector('.add-video-module-input');
-            
-            if (inputElement) {
-                if (link.length < 42 || !link.includes('www.youtube.com/watch?')) {
-                    inputElement.style.border = '1px solid #FF695B';
-                } else {
-                    inputElement.style.border = '1px solid #ACFF9E';
-                }
-            }
-            
-            this.errorMessage = ''; // Сбрасываем ошибку при изменении ссылки
+        console.error('Ошибка при проверке видео:', error);
+        return false;
         }
     }
-}
+
+    async function notification() {
+        if (url.value === '') {
+            showError('Вы не ввели ссылку на видео!')
+            return
+        }
+            
+        if (url.value.includes('vkvideo')) {
+            showError('Сасеб')
+            return
+        }
+            
+        if (!url.value.includes('www.youtube.com/watch?')) {
+            showError('Неверная ссылка на YouTube видео')
+            return
+        }
+
+        isLoading.value = true;
+        errorMessage.value = '';
+
+        try {
+            const videoExists = await checkVideoExists(url.value);
+                
+            if (videoExists) {
+                showError('Такое видео уже есть в базе!');
+                return;
+            }
+
+        await API.videos.addVideo(url.value, comment_text.value);
+        removeComponent()   
+                
+        await API.videos.refreshVideoList();
+                
+        } catch (error) {
+            console.error('Ошибка при добавлении видео:', error);
+            showError('Произошла ошибка при добавлении видео');
+        } finally {
+        isLoading.value = false;
+        }
+    }
+
+    function showError(message) {
+        errorMessage.value = message;
+        setTimeout(() => {
+        errorMessage.value = '';
+        }, 5000);
+    }
+
+    function changeColorInfo() {
+        const inputElement = document.querySelector('.add-video-module-input');
+            
+        if (inputElement) {
+            if (url.value.length < 42 || !url.value.includes('www.youtube.com/watch?')) {
+                inputElement.style.border = '1px solid #FF695B';
+            } else {
+                inputElement.style.border = '1px solid #ACFF9E';
+            }
+        }
+            
+        errorMessage.value = '';
+    }
 </script>
 
 <template>
@@ -111,13 +90,12 @@ export default {
         <div class="add-video-module">
             <h1>Добавить видео</h1>
             
-            <!-- Сообщение об ошибке -->
             <div v-if="errorMessage" class="error-message">
                 {{ errorMessage }}
             </div>
             
             <input 
-                v-model="link"
+                v-model="url"
                 @input="changeColorInfo" 
                 class="add-video-module-input" 
                 type="text" 

@@ -6,19 +6,22 @@ import {API} from '../../services/api'
 const is_checked_status = ref(false)
 const video_id = ref(20)
 const videoList = ref([])
+const addVideoComponentIsVisible = ref(false)
 const videoStatuses = [{
     0: 'На модерации',
     1: 'Принято',
     2: 'Отклонено'
   }
 ]
-// import { strapi } from 'strapi'
 
-// Функция для обновления списка видео после изменения статуса "просмотрено"
+export const addVideoComponentIsVisibleFunction = (bool) => {
+  addVideoComponentIsVisible.value = bool
+  return addVideoComponentIsVisible.value
+}
 export const refreshVideoList = async (videoList) => {
   try {
       videoList = await API.videos.getVideos()
-      console.log(this.videoList)
+      console.log(videoList)
   } catch (error) {
       console.error('Ошибка при обновлении списка видео:', error);
   }
@@ -27,7 +30,6 @@ export const refreshVideoList = async (videoList) => {
 export const getVideos = async () => {
   try {
     const response = await instance.get('/videos')
-    console.log(...response.data.data)
     videoList.value = {...response.data.data}
     return videoList
   } catch (error) {
@@ -46,9 +48,9 @@ export const getUsers = async () => {
   }
 }
 
-export const addVideo = async (link, comment_text, send_date_res) => {
+export const addVideo = async (link, comment_text) => {
 
-  const send_date_red = new Date().toISOString().split('T')[0]; // 2024-01-19
+  const send_date_res = new Date().toISOString().split('T')[0]; // 2024-01-19
 
   const getTitle = await axios.get(
     `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${link.split('=')[1]}&key=AIzaSyAd_rFuqgRiTnoUv0SzJfgVGdOauNwHYAw`

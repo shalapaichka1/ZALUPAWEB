@@ -1,10 +1,5 @@
-<script>
-import { useAuthStore } from '../stores/auth'
-
-export default {
-    data() {
-        return {
-            modsInfo: [
+<script setup>
+    const modsInfo = [
                 {
                     id: 1,
                     name: 'Идеи',
@@ -20,10 +15,6 @@ export default {
                     link: '/moderation/videos'
                 }
             ]
-        }
-    }
-}
-
 </script>
 <template>
     <div class="moderation-mods">

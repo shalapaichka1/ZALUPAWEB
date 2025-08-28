@@ -37,7 +37,7 @@ const authorizationFunc = async (e) => {
     // Проверяем существование пользователя и авторизуем
     const response = await API.videos.authorizationUser(
       formData.value.username, 
-      formData.value.password
+      formData.value.password,
     )
     
     if (response.success) {

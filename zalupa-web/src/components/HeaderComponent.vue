@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup>
 import { useAuthStore } from '../stores/auth'
 
 const useStore = useAuthStore()
@@ -13,12 +13,6 @@ const useStore = useAuthStore()
         <div class="header-navigation">
             <a href="/ideas">Идеи</a>
             <a href="/videos">Видео</a>
-            <!-- <a href="/arts">Арты</a> -->
-            <!-- <a href="/events">Ивенты</a> -->
-            <!-- <a href="/merch">Мерч</a> -->
-            <!-- <a href="/mini-games">Мини игры</a> -->
-            <!-- <a href="/calendar">Календарь событий</a> -->
-            <!-- <a href="/practical-jokes">Розыгрыши</a> -->
             <a href="/q&a">Q&A</a>
         </div>
 
