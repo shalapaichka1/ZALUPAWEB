@@ -5,7 +5,7 @@
     const errorMessage = ref('')
     const url = ref('')
     const comment_text = ref('')
-    const isVisible = ref(API.videos.addVideoComponentIsVisibleFunction())
+    const isVisible = ref(true)
 
     function removeComponent() {
         isVisible.value = false

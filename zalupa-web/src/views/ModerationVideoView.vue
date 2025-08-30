@@ -69,9 +69,12 @@
                     <option>На модерации (6)</option>
                     <option>Принято (2)</option>
                     <option>Отклонено (3)</option>
+                </select>
+
+                <select class="moderation-video-main-area-header-search-select" name="" id="">
                     <option>Просмотрено (2)</option>
                     <option>Не просмотрено (9)</option>
-            </select>
+                </select>
             </div>
 
         </div>
@@ -90,12 +93,12 @@
                     <div>
                         <div class="video_element_info_section_2">
                     <select class="video_element_select" name="video_category" id="">
-                            <option>Категории</option>
-                            <option>Трукрайм</option>
-                            <option>Веселое</option>
-                            <option>Разоблочения</option>
-                            <option>Политика</option>
-                            <option>Другое</option>
+                            <option value="Категории">Категории</option>
+                            <option value="Трукрайм">Трукрайм</option>
+                            <option value="Веселое">Веселое</option>
+                            <option value="Разоблочения">Разоблочения</option>
+                            <option value="Политика">Политика</option>
+                            <option value="Другое">Другое</option>
                         </select>
                     <ButtonChecked class="check_button" :id="i.documentId" :is_checked="i.is_checked" @click="changeStatusButton(e)"></ButtonChecked>
 
@@ -178,15 +181,15 @@
 }
 
 .moderation-video-main-area-content {
-    height: 88vh;
+    height: 96vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    margin-top: 15px;
     justify-content: center;
     gap: 15px;
     place-items: center;
     overflow: auto;
     scroll-behavior: smooth;
+    padding-top: 6vh;
 }
 
 .moderation-video-list-element {
@@ -209,10 +212,11 @@
     justify-items: center;
     gap: 10px;
     cursor: pointer;
-    border: 1px solid white;
+    border: 1px solid #494949;
     height: 60px;
     padding: 15px;
     border-radius: 15px;
+    background-color: #15151570;
 
     img {
         width: 30px;
@@ -228,29 +232,32 @@
 }
 
 .moderation-video-main-area-header-search-area {
+    margin-right: 30px;
     display: flex;
     align-items: center;
     gap: 10px;
     justify-content: space-around;
+    width: 84vh;
 }
 
 .moderation-video-main-area-header-search {
     width: 400px;
-    background-color: #1C1C1C;
-    border: 1px solid #fff;
     color: #fff;
     outline: none;
     cursor:auto;
 }
 
-.moderation-video-main-area {
-    padding: 15px;    
-}
-
 .moderation-video-main-area-header {
+    left: 0;
+    padding: 15px;    
+    z-index: 1;
+    width: 99.4%;
+    position: absolute;
     display:flex;
     flex-direction:row;
     justify-content: space-between;
     align-items: center;
+    background-color: #00000000;
+    backdrop-filter: blur(70px);
 }
 </style>

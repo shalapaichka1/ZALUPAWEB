@@ -27,16 +27,6 @@ export const refreshVideoList = async (videoList) => {
   }
 }
 
-export const getVideos = async () => {
-  try {
-    const response = await instance.get('/videos')
-    videoList.value = {...response.data.data}
-    return videoList
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 export const getUsers = async () => {
   try {
     const response = await instance.get('/users')

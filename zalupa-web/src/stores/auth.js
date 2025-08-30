@@ -8,6 +8,20 @@ const isModeration = ref(true)
 const isSignIn = ref(false)
 const artsCount = ref(0)
 const isOpenCloseAddVideoModule = ref(false)
+const sortCategory = ref('Категории')
+const sortAccepted = ref('Все')
+const videoList = ref([])
+
+
+export const getVideos = async () => {
+  try {
+    const response = await instance.get('/videos')
+    videoList.value = {...response.data.data}
+    return videoList
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const signInOrUp = () => {
@@ -44,5 +58,5 @@ export const useAuthStore = defineStore('auth', () => {
       catchError(error)
     }
   }
-  return { signUp, isChatOpen, signInOrUp, getCookie, isModeration }
+  return { signUp, isChatOpen, signInOrUp, getCookie, isModeration, sortCategory, sortAccepted, getVideos}
 })

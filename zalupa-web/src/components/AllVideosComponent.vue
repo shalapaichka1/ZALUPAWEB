@@ -1,91 +1,123 @@
 <script setup>
-    import {API} from '../../services/api'
-    import {ref} from 'vue'
-    import AddVideoComponent from '@/components/AddVideoComponent.vue';
 
-    const videoList = ref([])
-    const channelCache = new Map()
-    const videoStatuses = {
-                0: 'На модерации ',
-                1: 'Принято',
-                2: 'Отклонено'
-            }
-    const videoStatusColors = {
-                0: '#FFD28F',
-                1: '#ACFF9E',
-                2: '#FF695B'
-            }
+import { API } from '../../services/api'
+import { ref, onMounted } from 'vue' // Добавляем onMounted
+import AddVideoComponent from '@/components/AddVideoComponent.vue'
+import { instance } from '../../services/axios/instance'
+import { useAuthStore } from '@/stores/auth'
+const channelCache = new Map()
+const videoStatuses = {
+  0: 'На модерации',
+  1: 'Принято', 
+  2: 'Отклонено'
+}
+const videoStatusColors = {
+  0: '#FFD28F',
+  1: '#ACFF9E',
+  2: '#FF695B'
+}
 
-    function mounted(){
-        refreshVideoList();
+// Используем хук жизненного цикла
+onMounted(async () => {
+  await refreshVideoList()
+  
+  // Дополнительная проверка через instance
+  try {
+    const data = await instance.get('/videos')
+    useAuthStore().videoList = data.data.data
+    console.log('Data from instance:', data.data.data)
+    
+    // Если videoList пустой, заполняем данными из instance
+    if (useAuthStore.videoList.length === 0 && data.data.length > 0) {
+      useAuthStore().videoList = data.data
     }
+  } catch (error) {
+    console.error('Ошибка при загрузке через instance:', error)
+  }
+}
+)
 
-    async function refreshVideoList() {
-        try {
-            videoList.value = await API.videos.getVideos()
-        } catch (error) {
-            console.error('Ошибка при обновлении списка видео:', error);
-        }
-    }
+async function zxczxc() {
+  const aa = useAuthStore().sortCategory
+    try {
+      const res = await instance.get(`/videos/?filters[category]=${aa}`)
+      useAuthStore().videoList = res.data
+    } catch{
         
-    function getHighQualityThumbnail(url_id) {
-        return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
     }
-        
-    function getChannelUrl(videoUrl, authorName) {
-        if (channelCache.has(videoUrl)) {
-            return channelCache.get(videoUrl);
-        }
-            
-        try {
-            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
-            channelCache.set(videoUrl, searchUrl);
-            return searchUrl;
-                
-        } catch (error) {
-            console.error('Ошибка при получении канала:', error);
-            return `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`;
-        }
-    }
+  }
 
-    async function handleAuthorClick(videoUrl, authorName, event) {
-        event.preventDefault();
-        event.stopPropagation();
-            
-        try {
-            const channelUrl = await getChannelUrl(videoUrl, authorName);
-            window.open(channelUrl, '_blank');
-        } catch (error) {
-            console.error('Ошибка при открытии канала:', error);
-            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank');
-        }
-    }
-    mounted()
+    function refreshVideoList() {
+  try {
+    console.log('Загрузка видео...')
+    useAuthStore().videoList = API.videos.getVideos()
+    console.log('Данные получены:', useAuthStore().videoList)
+    
+  } catch (error) {
+    console.error('Ошибка при обновлении списка видео:', error)
+    useAuthStore().videoList = []
+  }
+}
+
+// Остальные функции без изменений...
+function getHighQualityThumbnail(url_id) {
+  return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`
+}
+
+function getChannelUrl(videoUrl, authorName) {
+  if (channelCache.has(videoUrl)) {
+    return channelCache.get(videoUrl)
+  }
+  
+  try {
+    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`
+    channelCache.set(videoUrl, searchUrl)
+    return searchUrl
+  } catch (error) {
+    console.error('Ошибка при получении канала:', error)
+    return `https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`
+  }
+}
+
+async function handleAuthorClick(videoUrl, authorName, event) {
+  event.preventDefault()
+  event.stopPropagation()
+  
+  try {
+    const channelUrl = await getChannelUrl(videoUrl, authorName)
+    window.open(channelUrl, '_blank')
+  } catch (error) {
+    console.error('Ошибка при открытии канала:', error)
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank')
+  }
+}
 </script>
 
 <template>
-    <div class="all-video-module">
-        <div class="all-video-element" v-for="(el, documentId) in videoList.value" :key="documentId">
-            <div class="overlay-info">
-                <div class="new-video-notice" v-if="((new Date().getDate() - new Date(el.send_date).getDate()) -1 ) < 1" ></div>
-                <div :style="{ backgroundColor: videoStatusColors[el.agreement_status] }" class="video-agreement">{{ videoStatuses[el.agreement_status]}}</div>
-
-            </div>
-
-            <img class="preview" :src="getHighQualityThumbnail(el.url_id)" :alt="el.title">
-            <div class="overlay">
-                <!-- Добавляем кликабельное имя автора -->
-                <h1 class="el-title el-author" 
-                    @click="handleAuthorClick(el.url, el.author, $event)"
-                    :title="`Перейти на канал ${el.author}`">
-                    {{ el.author }}
-                </h1>
-                <h1 class="el-title">{{ el.title }}</h1>
-                <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
-            </div>
+  <div class="all-video-module">
+    <!-- Убираем .value из videoList.value -->
+    <div class="all-video-element" v-for="(el, index) in useAuthStore().videoList" :key="index">
+      <div class="overlay-info">
+        <div class="new-video-notice" v-if="((new Date().getDate() - new Date(el.send_date).getDate()) - 1) < 1"></div>
+        <div :style="{ backgroundColor: videoStatusColors[el.agreement_status] }" class="video-agreement">
+          {{ videoStatuses[el.agreement_status] }}
         </div>
+      </div>
+
+      <img class="preview" :src="getHighQualityThumbnail(el.url_id)" :alt="el.title">
+      <div class="overlay">
+        <h1 class="el-title el-author" 
+            @click="handleAuthorClick(el.url, el.author, $event)"
+            :title="`Перейти на канал ${el.author}`">
+          {{ el.author }}
+        </h1>
+        <h1 class="el-title">{{ el.title }}</h1>
+        <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
+      </div>
     </div>
-    <AddVideoComponent/>
+  </div>
+  <button class="clearButton" @click="zxczxc">adasd</button>
+  <AddVideoComponent/>
 </template>
 
 <style>
@@ -108,6 +140,7 @@
     font-weight: 800;
     transition: opacity 0.3s ease;
 }
+
 
 .video-agreement {
     left: 0;
@@ -145,10 +178,11 @@
 
 .all-video-module {
     padding: 15px;
-    height: 82vh;
+    padding-top: 105px;
+    padding-bottom: 105px;
+    height: 95vh;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    margin-top: 15px;
     justify-content: center;
     gap: 15px;
     place-items: center;
