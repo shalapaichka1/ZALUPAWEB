@@ -157,7 +157,6 @@
 }
 
 .preview {
-    width: 100%;
     transition: transform 0.3s ease;
 }
 
