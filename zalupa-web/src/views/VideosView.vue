@@ -4,14 +4,11 @@
   import AddVideoComponent from '@/components/AddVideoComponent.vue';
   import { instance } from '../../services/axios/instance';
   import { ref } from 'vue';
-  import { API } from '../../services/api'
   import { useAuthStore } from '@/stores/auth'
   const videoModuleSwitchCondition = ref('all')
-  const sortIsAccepted = ref('')
-  const isOpenAddVideoModule = ref(API.videos.addVideoComponentIsVisibleFunction(false))
 
   function openVideoButtonConditionFunction() { 
-    API.videos.addVideoComponentIsVisibleFunction(true)
+    useAuthStore().isOpenCloseAddVideoModule = true
   }
 
   async function onChangeCategorySelect(event) {
@@ -19,26 +16,51 @@
     try {
       const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}`)
       useAuthStore().videoList = res.data.data
-    } catch{
-        
+    } catch(error){
+        console.error(error)
     }
+
+    if (useAuthStore().videoList.length === 0) {
+        useAuthStore().isListEmpty = true
+      }
+      else {
+        useAuthStore().isListEmpty = false
+      }
   }
 
   async function onChangeAcceptedSelect(event) {
     useAuthStore().sortAccepted = event.target.value
+
     try {
-      const res = await instance.get(`/videos/?filters[agreement_status]=${useAuthStore().sortAccepted}`)
-      useAuthStore().videoList = res.data.data
-    } catch{
-        
+      if (useAuthStore().sortAccepted === 'Все') {
+        const res = await instance.get(`/videos`)
+        useAuthStore().videoList = res.data.data
+      } else {
+        const res = await instance.get(`/videos/?filters[agreement_status]=${useAuthStore().sortAccepted}`)
+        useAuthStore().videoList = res.data.data
+      }
+      if (useAuthStore().videoList.length === 0) {
+        useAuthStore().isListEmpty = true
+      }
+      else {
+        useAuthStore().isListEmpty = false
+      }
+    } catch(error){
+        console.error(error)
     }
   }
   async function clearFilters() {
-    useAuthStore().sortCategory = 'Категории'
+    useAuthStore().sortCategory = 'Веселое'
     useAuthStore().sortAccepted = 'Все'
     try {
       const res = await instance.get(`/videos`)
       useAuthStore().videoList = res.data.data
+      if (useAuthStore().videoList.length === 0) {
+        useAuthStore().isListEmpty = true
+      }
+      else {
+        useAuthStore().isListEmpty = false
+      }
     } catch{
         
     }
@@ -53,7 +75,7 @@
     </div>
     <div class="navigation">
 
-      <select v-model="useAuthStore().sortAccepted" @change="onChangeAcceptedSelect" class="moderation-video-main-area-header-filter-select" name="video_status_category">
+    <select v-model="useAuthStore().sortAccepted" @change="onChangeAcceptedSelect" class="moderation-video-main-area-header-filter-select" name="video_status_category">
       <option selected>Все</option>
       <option value="0">На модерации</option>
       <option value="1">Принято</option>
@@ -61,16 +83,17 @@
     </select>
 
     <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
-      <option value="Категории">Категории</option>
-      <option value="Трукрайм">Трукрайм</option>
       <option value="Веселое">Веселое</option>
+      <option value="Трукрайм">Трукрайм</option>
       <option value="Разоблачения">Разоблачения</option>
       <option value="Политика">Политика</option>
       <option value="Страшное">Страшное</option>
       <option value="Другое">Другое</option>
     </select>
 
-    <button class="clearButton" @click="clearFilters">Сбросить</button>
+    <button class="clearButton" @click="clearFilters">
+      <img src="../images/clearButton.png" alt="">
+    </button>
 
     </div>
 
@@ -84,13 +107,24 @@
   <div class="footer">
     <button @click="openVideoButtonConditionFunction" class="sendVideoButton">Отправить видео</button>
   </div>
-    <AddVideoComponent v-if="isOpenAddVideoModule"/>
+    <AddVideoComponent/>
 </template>
 
 <style lang="scss">
 
-.clearButton:hover {
+.clearButton{
   background-color: #ff6464;
+  width: 60px;
+
+  img {
+    width: 20px;
+    height: 20px;
+    color: aliceblue;
+  }
+
+  &:hover img {
+    transform: scale(1.5);
+  }
 }
 
 .navigation {
@@ -106,13 +140,14 @@
   display:flex;
   flex-direction: row-reverse;
   padding: 15px;
-  background-color: #00000000;
+  background-color:  #0000002f;
   backdrop-filter: blur(70px);
 }
 .video-view-header {
   position: absolute;
   z-index: 2;
-  background-color: #00000000;
+  background-color: #0000002f;
+  box-shadow: 0px 15px 15px 0px #00000073;
   backdrop-filter: blur(70px);
   padding: 15px;
   width: 99.4%;

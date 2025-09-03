@@ -18,14 +18,6 @@ export const addVideoComponentIsVisibleFunction = (bool) => {
   addVideoComponentIsVisible.value = bool
   return addVideoComponentIsVisible.value
 }
-export const refreshVideoList = async (videoList) => {
-  try {
-      videoList = await API.videos.getVideos()
-      console.log(videoList)
-  } catch (error) {
-      console.error('Ошибка при обновлении списка видео:', error);
-  }
-}
 
 export const getUsers = async () => {
   try {
@@ -65,13 +57,6 @@ export const addVideo = async (link, comment_text) => {
 export const addNewUser = async ({username, email, password}) => {
   const response = await instance.post('/auth/local/register', {
       username, email, password
-  },
-)
-}
-
-export const authorizationUser = async ({username, password}) => {
-    const response = await instance.post('/auth/local', {
-      identifier: username, password
   },
 )
 }

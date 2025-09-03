@@ -1,3 +1,5 @@
 <template>
-    <button class="is-not-checked-button">Не просмотренно</button>
+    <button class="is-checked-button">
+        Не просмотренно
+    </button>
 </template>

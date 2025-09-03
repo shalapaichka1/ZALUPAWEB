@@ -23,7 +23,6 @@ const useStore = useAuthStore()
             </div>
 
             <div class="header-user-buttons">
-                <img class="header-mail hub" src="../images/mail.svg" alt="">
                 <a href="/signup"><img class="header-plus hub" src="../images/user.svg" alt=""></a>
             </div>
 

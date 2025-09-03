@@ -1,22 +1,31 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
-
+import { instance } from '../../services/axios/instance'
 const APIKEY = 'AIzaSyAkAVqh68vBS5M9gDkOGfvZCgc730jpynE'
 const isChatOpen = ref(false)
 const isModeration = ref(true)
 const isSignIn = ref(false)
-const artsCount = ref(0)
 const isOpenCloseAddVideoModule = ref(false)
-const sortCategory = ref('Категории')
+const sortCategory = ref('Веселое')
+const sortIsChecked = ref('Все')
 const sortAccepted = ref('Все')
+const sortInput = ref('')
 const videoList = ref([])
+const isListEmpty = ref(false)
 
+export const authorizationUser = async ({username, password}) => {
+  const response = await instance.post('/auth/local', {
+    identifier: username, password
+  },
+)
+return response.data
+}
 
 export const getVideos = async () => {
   try {
-    const response = await instance.get('/videos')
-    videoList.value = {...response.data.data}
+    const res = await instance.get('/videos')
+    videoList.value = res.data
     return videoList
   } catch (error) {
     console.error(error)
@@ -58,5 +67,5 @@ export const useAuthStore = defineStore('auth', () => {
       catchError(error)
     }
   }
-  return { signUp, isChatOpen, signInOrUp, getCookie, isModeration, sortCategory, sortAccepted, getVideos}
+  return { signUp, isChatOpen, signInOrUp, getCookie, isModeration, sortCategory, sortAccepted, getVideos, sortInput, sortIsChecked, authorizationUser, isListEmpty}
 })

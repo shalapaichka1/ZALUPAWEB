@@ -19,7 +19,7 @@ const videoStatusColors = {
 
 // Используем хук жизненного цикла
 onMounted(async () => {
-  await refreshVideoList()
+  await useAuthStore().getVideos
   
   // Дополнительная проверка через instance
   try {
@@ -28,7 +28,7 @@ onMounted(async () => {
     console.log('Data from instance:', data.data.data)
     
     // Если videoList пустой, заполняем данными из instance
-    if (useAuthStore.videoList.length === 0 && data.data.length > 0) {
+    if (useAuthStore().videoList.length === 0 && data.data.length > 0) {
       useAuthStore().videoList = data.data
     }
   } catch (error) {
@@ -37,32 +37,9 @@ onMounted(async () => {
 }
 )
 
-async function zxczxc() {
-  const aa = useAuthStore().sortCategory
-    try {
-      const res = await instance.get(`/videos/?filters[category]=${aa}`)
-      useAuthStore().videoList = res.data
-    } catch{
-        
-    }
+  function getHighQualityThumbnail(url_id) {
+    return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`
   }
-
-    function refreshVideoList() {
-  try {
-    console.log('Загрузка видео...')
-    useAuthStore().videoList = API.videos.getVideos()
-    console.log('Данные получены:', useAuthStore().videoList)
-    
-  } catch (error) {
-    console.error('Ошибка при обновлении списка видео:', error)
-    useAuthStore().videoList = []
-  }
-}
-
-// Остальные функции без изменений...
-function getHighQualityThumbnail(url_id) {
-  return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`
-}
 
 function getChannelUrl(videoUrl, authorName) {
   if (channelCache.has(videoUrl)) {
@@ -94,11 +71,11 @@ async function handleAuthorClick(videoUrl, authorName, event) {
 </script>
 
 <template>
+  <h1 class="no-videos-found" v-if="useAuthStore().isListEmpty">Видео не найдены</h1>
   <div class="all-video-module">
-    <!-- Убираем .value из videoList.value -->
     <div class="all-video-element" v-for="(el, index) in useAuthStore().videoList" :key="index">
       <div class="overlay-info">
-        <div class="new-video-notice" v-if="((new Date().getDate() - new Date(el.send_date).getDate()) - 1) < 1"></div>
+        <div class="new-video-notice" v-if="((new Date().getDate() - new Date(el.send_date).getDate()) == 0)"></div>
         <div :style="{ backgroundColor: videoStatusColors[el.agreement_status] }" class="video-agreement">
           {{ videoStatuses[el.agreement_status] }}
         </div>
@@ -116,7 +93,6 @@ async function handleAuthorClick(videoUrl, authorName, event) {
       </div>
     </div>
   </div>
-  <button class="clearButton" @click="zxczxc">adasd</button>
   <AddVideoComponent/>
 </template>
 
@@ -125,7 +101,20 @@ async function handleAuthorClick(videoUrl, authorName, event) {
   font-family: 'PPmori-Regular';
   src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('woff2');
 }
-
+.no-videos-found {
+  font-size: 24px;
+  font-family: 'PPmori-Regular', sans-serif;
+  font-weight: 800;
+  color: white;
+  text-align: center;
+  margin-top: 100px;
+  margin-bottom: 100px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .new-video-notice, .video-agreement{
     position: absolute;
     right: 0;
@@ -162,7 +151,7 @@ async function handleAuthorClick(videoUrl, authorName, event) {
     color: white;
     font-size: 24px;
     border-radius: 15px;
-    border: 1px solid #00000000;
+    border: 1px solid #0000002f;
     transition: all 0.3s ease;
 }
 
@@ -204,7 +193,7 @@ async function handleAuthorClick(videoUrl, authorName, event) {
     left: 0;
     right: 0;
     backdrop-filter: blur(20px);
-    background-color: #00000092;
+    background-color: #0000002f;
     overflow: hidden;
     height: 100%;
     transition: all 0.3s ease-out;

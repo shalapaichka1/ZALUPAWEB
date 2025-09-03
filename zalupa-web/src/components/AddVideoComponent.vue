@@ -1,14 +1,14 @@
 <script setup>
     import { API } from '../../services/api'
-    import { isVNode, ref } from 'vue'
+    import { ref } from 'vue'
+    import { useAuthStore } from '@/stores/auth'
     const isLoading = ref(false)
     const errorMessage = ref('')
     const url = ref('')
     const comment_text = ref('')
-    const isVisible = ref(true)
 
     function removeComponent() {
-        isVisible.value = false
+        useAuthStore().isOpenCloseAddVideoModule = false
         errorMessage.value = ''
         url.value = ''
         comment_text.value = ''
@@ -86,7 +86,7 @@
 </script>
 
 <template>
-    <div class="add-video-module-background" v-if="isVisible">
+    <div class="add-video-module-background" v-if="useAuthStore().isOpenCloseAddVideoModule">
         <div class="add-video-module">
             <h1>Добавить видео</h1>
             

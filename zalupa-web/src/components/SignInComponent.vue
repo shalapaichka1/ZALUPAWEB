@@ -1,5 +1,4 @@
 <script setup>
-import { API } from '../../services/api'
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
@@ -35,10 +34,11 @@ const authorizationFunc = async (e) => {
 
   try {
     // Проверяем существование пользователя и авторизуем
-    const response = await API.videos.authorizationUser(
+    const response = await useAuthStore().authorizationUser(
       formData.value.username, 
       formData.value.password,
     )
+    
     
     if (response.success) {
       // Сохраняем JWT токен и логин
