@@ -15,8 +15,13 @@ const sortInput = ref('')
 const videoList = ref([])
 const isListEmpty = ref(false)
 const isOpenSignInComponent = ref(false)
+const isDarkTheme = ref(true)
 
-
+export function changeTheme() {
+  if (isDarkTheme) {
+    
+  }
+}
 export const authorizationUser = async (username, password) => {
   await instance
     .post('/auth/local', {
@@ -197,6 +202,7 @@ function getCookie(name) {
     authorizationUser,
     isListEmpty,
     login,
-    isOpenSignInComponent
+    isOpenSignInComponent,
+    isDarkTheme
   }
 })

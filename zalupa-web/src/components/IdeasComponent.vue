@@ -94,7 +94,7 @@ function resetForm() {
   <div class="ideas-container">
     <!-- Форма отправки идеи -->
     <div class="idea-form-section">
-      <h2 class="section-title">Предложить идею</h2>
+      <h1 class="section-title">Предложить идею</h1>
       
       <form @submit="submitIdea" class="idea-form">
         <div class="form-group">
@@ -179,7 +179,7 @@ function resetForm() {
 
     <!-- Список отправленных идей -->
     <div class="ideas-list-section">
-      <h2 class="section-title">Мои идеи</h2>
+      <h1 class="section-title">Мои идеи</h1>
       
       <div v-if="authStore.ideaList && authStore.ideaList.length === 0" class="empty-state">
         <p>Вы еще не отправляли идеи</p>
@@ -231,7 +231,6 @@ function resetForm() {
   font-size: 28px;
   color: white;
   margin-bottom: 30px;
-  text-align: center;
 }
 
 /* Форма */

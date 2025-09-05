@@ -83,14 +83,14 @@ function toggleForm() {
 </script>
 
 <template>
+  
   <div class="auth-container">
-    <div class="auth-form">
 
-      <div class="auth-header">
+    <div class="auth-form">
+                <div class="auth-header">
         <h1>{{ isLoginForm ? 'Вход' : 'Регистрация' }}</h1>
         <img @click="useAuthStore().isOpenSignInComponent = !useAuthStore().isOpenSignInComponent" class="close-button" src="../images/close-button.png" alt="">
       </div>
-
       <form @submit.prevent="isLoginForm ? handleLogin() : handleRegister()" class="auth-content">
         <!-- Форма логина -->
         <div v-if="isLoginForm" class="form-group">
@@ -196,6 +196,7 @@ function toggleForm() {
 }
 .auth-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -220,6 +221,7 @@ function toggleForm() {
 }
 
 .auth-header {
+  
   display: flex;
   align-items: center;
   justify-content: space-between;

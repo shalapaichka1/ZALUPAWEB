@@ -2,6 +2,9 @@
 import { useAuthStore } from '../stores/auth'
 import { ref } from 'vue'
 
+import DarkThemeButtonComponent from './DarkThemeButtonComponent.vue'
+import LightThemeButtonComponent from './LightThemeButtonComponent.vue'
+
 function OpenSignInComponent(){
     useAuthStore().isOpenSignInComponent = !useAuthStore().isOpenSignInComponent
 }
@@ -20,6 +23,8 @@ function OpenSignInComponent(){
         </div>
 
         <div class="header-buttons">
+            <DarkThemeButtonComponent v-if="useAuthStore().isDarkTheme"/>
+            <LightThemeButtonComponent v-else/>
             <div v-if="useAuthStore().isModeration" class="header-moderation-div">
                 <img class="banana" src="../images/banana.svg" alt="">
                 <a href="/moderation" class="moderation-button">Режим модератора</a>

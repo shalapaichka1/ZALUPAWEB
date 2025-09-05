@@ -79,8 +79,8 @@ import Cookies from 'js-cookie';
 <template>
   <div class="video-view-header">
     <div class="switch-video-modules">
-      <button @click="switchVideoModulesFunction">Ваши видео</button>
       <button @click="switchVideoModulesFunctionAll">Все видео</button>
+      <button @click="switchVideoModulesFunction">Ваши видео</button>
     </div>
     <div class="navigation">
 
