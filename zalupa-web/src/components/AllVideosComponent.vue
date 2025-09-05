@@ -4,7 +4,8 @@ import { API } from '../../services/api'
 import { ref, onMounted } from 'vue' // Добавляем onMounted
 import AddVideoComponent from '@/components/AddVideoComponent.vue'
 import { instance } from '../../services/axios/instance'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '../stores/auth'
+import Cookies from 'js-cookie'
 const channelCache = new Map()
 const videoStatuses = {
   0: 'На модерации',
@@ -25,7 +26,6 @@ onMounted(async () => {
   try {
     const data = await instance.get('/videos')
     useAuthStore().videoList = data.data.data
-    console.log('Data from instance:', data.data.data)
     
     // Если videoList пустой, заполняем данными из instance
     if (useAuthStore().videoList.length === 0 && data.data.length > 0) {
@@ -68,6 +68,10 @@ async function handleAuthorClick(videoUrl, authorName, event) {
     window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank')
   }
 }
+
+async function isFavoriteForMe(){
+  const res = await instance.get('/users')
+}
 </script>
 
 <template>
@@ -89,7 +93,14 @@ async function handleAuthorClick(videoUrl, authorName, event) {
           {{ el.author }}
         </h1>
         <h1 class="el-title">{{ el.title }}</h1>
-        <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
+        <div class="overlay-buttons">
+          <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
+          <button class="like-button">
+            <img v-if="isFavoriteForMe" class="like1-image" src="../images/favorite1.png" alt="">
+            <span>{{ el.like_count }}</span>
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -99,11 +110,36 @@ async function handleAuthorClick(videoUrl, authorName, event) {
 <style>
 @font-face {
   font-family: 'PPmori-Regular';
-  src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('woff2');
+  src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\public\PPMori-Regular.otf') format('opentype');
+}
+
+.like1-image {
+  position: relative;
+  height: 60px;
+  width: 60px;
+  top: 5px;
+
+}
+.like-button {
+  height: 80px;
+  width: 80px;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+
+  span {
+    position: relative;
+    top: -15px;
+  }
+}
+.overlay-buttons {
+  gap: 15px;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 .no-videos-found {
   font-size: 24px;
-  font-family: 'PPmori-Regular', sans-serif;
   font-weight: 800;
   color: white;
   text-align: center;
@@ -125,7 +161,6 @@ async function handleAuthorClick(videoUrl, authorName, event) {
     padding: 15px;
     margin: 15px;
     border-radius: 15px;
-    font-family:'PPmori-Regular', sans-serif;
     font-weight: 800;
     transition: opacity 0.3s ease;
 }
@@ -233,7 +268,6 @@ async function handleAuthorClick(videoUrl, authorName, event) {
 
 .overlay > h1 {
     text-wrap: wrap;
-    font-family: 'PPmori-Regular', sans-serif;
     font-weight: 600;
     color: white;
     font-size: 40px;

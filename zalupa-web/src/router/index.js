@@ -5,10 +5,16 @@ import IdeasView from '../views/IdeasView.vue'
 import VideosView from '../views/VideosView.vue'
 import QAView from '@/views/QAView.vue'
 import ModerationVideoView from '@/views/ModerationVideoView.vue'
+import ProfileComponent from '@/components/ProfileComponent.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/',
+      name: 'profile',
+      component: ProfileComponent
+    },
     {
       path: '/signup',
       name: 'signup',

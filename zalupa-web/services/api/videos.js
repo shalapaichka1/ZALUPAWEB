@@ -2,6 +2,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { instance } from '../axios/instance.js'
 import {API} from '../../services/api'
+import Cookies from 'js-cookie'
  
 const is_checked_status = ref(false)
 const video_id = ref(20)
@@ -42,12 +43,13 @@ export const addVideo = async (link, comment_text) => {
       url: link,
       url_id: link.split('=')[1],
       title: getTitle.data.items[0].snippet.title,
-      sender: 'shalapok',
+      sender: Cookies.get('username'),
       comment: comment_text,
       agreement_status: '0',
       is_checked: false,
       send_date: send_date_res,
       author: getTitle.data.items[0].snippet.channelTitle,
+      like_count: 0
     }
   })
   console.log(response.data)
@@ -56,9 +58,12 @@ export const addVideo = async (link, comment_text) => {
 
 export const addNewUser = async ({username, email, password}) => {
   const response = await instance.post('/auth/local/register', {
-      username, email, password
-  },
-)
+    username: username,
+    email: email,
+    password: password,
+    comfconfirmed: false,
+    blocked: false
+  })
 }
 
 export const changeIsChecked = async (id, status) => {

@@ -5,12 +5,21 @@
   import { instance } from '../../services/axios/instance';
   import { ref } from 'vue';
   import { useAuthStore } from '@/stores/auth'
+import Cookies from 'js-cookie';
   const videoModuleSwitchCondition = ref('all')
 
   function openVideoButtonConditionFunction() { 
     useAuthStore().isOpenCloseAddVideoModule = true
   }
 
+  async function switchVideoModulesFunctionAll() {
+        const res = await instance.get(`/videos`)
+    useAuthStore().videoList = res.data.data
+  }
+  async function switchVideoModulesFunction(){
+    const res = await instance.get(`/videos/?filters[sender]=${Cookies.get('username')}`)
+    useAuthStore().videoList = res.data.data
+  }
   async function onChangeCategorySelect(event) {
     useAuthStore().sortCategory = event.target.value
     try {
@@ -70,8 +79,8 @@
 <template>
   <div class="video-view-header">
     <div class="switch-video-modules">
-      <button @click="switchVideoModulesFunction('my', e)">Ваши видео</button>
-      <button @click="switchVideoModulesFunction('all', e)">Все видео</button>
+      <button @click="switchVideoModulesFunction">Ваши видео</button>
+      <button @click="switchVideoModulesFunctionAll">Все видео</button>
     </div>
     <div class="navigation">
 
@@ -131,26 +140,28 @@
   display: flex;
   gap: 15px;
 }
+
 .footer {
   bottom: 0;
   left: 0;
   z-index: 1;
-  width: 99.4%;
+  width: 100%;
   position: absolute;
   display:flex;
   flex-direction: row-reverse;
   padding: 15px;
-  background-color:  #0000002f;
+  background-color:  #151515d2;
   backdrop-filter: blur(70px);
 }
+
 .video-view-header {
   position: absolute;
   z-index: 2;
-  background-color: #0000002f;
+  background-color: #151515d2;
   box-shadow: 0px 15px 15px 0px #00000073;
   backdrop-filter: blur(70px);
   padding: 15px;
-  width: 99.4%;
+  width: 100%;
 
   display: flex;
   justify-content: space-between;

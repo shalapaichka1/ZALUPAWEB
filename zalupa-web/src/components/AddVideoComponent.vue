@@ -144,7 +144,7 @@
     }
 
     .add-video-module {
-        background-color: #1C1C1C;
+        background-color: #151515;
         box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
         border-radius: 5px;
         border: 2px solid #6F6F6F;
@@ -180,7 +180,7 @@
     .add-video-module input {
         width: 100%;
         height: 40px;
-        background: #1C1C1C;
+        background: #151515;
         border: 2px solid #6F6F6F;
         border-radius: 5px;
         padding: 5px 15px;
@@ -197,7 +197,7 @@
     .add-video-module button {
         width: 100%;
         height: 40px;
-        background: #1c1c1c;
+        background: #151515;
         border-radius: 5px;
         font-family: 'Raleway-SemiBold', sans-serif;
         color: white;

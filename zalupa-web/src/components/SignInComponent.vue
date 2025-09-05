@@ -1,30 +1,27 @@
 <script setup>
 import { ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 
-const formData = ref({
-  username: '',
+const isLoginForm = ref(true)
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+const loginData = ref({
+  email: '',
   password: ''
 })
 
-const errorMessage = ref('')
-const isLoading = ref(false)
+const registerData = ref({
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: ''
+})
 
-// Функция для установки cookie
-const setCookie = (name, value, days = 30) => {
-  const date = new Date()
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
-  const expires = `expires=${date.toUTCString()}`
-  document.cookie = `${name}=${value};${expires};path=/`
-}
-
-// Функция авторизации
-const authorizationFunc = async (e) => {
-  e.preventDefault()
-  
-  if (!formData.value.username || !formData.value.password) {
+async function handleLogin() {
+  if (!loginData.value.email || !loginData.value.password) {
     errorMessage.value = 'Заполните все поля'
     return
   }
@@ -33,274 +30,331 @@ const authorizationFunc = async (e) => {
   errorMessage.value = ''
 
   try {
-    // Проверяем существование пользователя и авторизуем
-    const response = await useAuthStore().authorizationUser(
-      formData.value.username, 
-      formData.value.password,
-    )
-    
-    
-    if (response.success) {
-      // Сохраняем JWT токен и логин
-      if (response.token) {
-        setCookie('jwt_token', response.token)
-      }
-      setCookie('username', formData.value.username)
-      
-      // Обновляем состояние хранилища
-      authStore.setUser({
-        username: formData.value.username,
-        isAuthenticated: true
-      })
-      
-      // Закрываем окно авторизации
-      authStore.isChatOpen = false
-      
-      console.log('Авторизация успешна')
-    } else {
-      errorMessage.value = response.message || 'Ошибка авторизации'
-    }
-    
+    alert(loginData.value.email)
+    await authStore.authorizationUser(loginData.value.email, loginData.value.password)
+    // Авторизация успешна, можно перенаправить или обновить состояние
   } catch (error) {
-    console.error('Ошибка авторизации:', error)
-    errorMessage.value = 'Произошла ошибка при авторизации'
+    errorMessage.value = error.response?.data?.message || 'Ошибка авторизации'
   } finally {
     isLoading.value = false
   }
 }
+
+async function handleRegister() {
+  if (!registerData.value.username || !registerData.value.email || 
+      !registerData.value.password || !registerData.value.confirmPassword) {
+    errorMessage.value = 'Заполните все поля'
+    return
+  }
+
+  if (registerData.value.password !== registerData.value.confirmPassword) {
+    errorMessage.value = 'Пароли не совпадают'
+    return
+  }
+
+  if (registerData.value.password.length < 6) {
+    errorMessage.value = 'Пароль должен содержать минимум 6 символов'
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    await authStore.addNewUser(
+      registerData.value.username,
+      registerData.value.email,
+      registerData.value.password
+    )
+    // После успешной регистрации переключаемся на логин
+    isLoginForm.value = true
+    errorMessage.value = 'Регистрация успешна! Теперь войдите в аккаунт.'
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || 'Ошибка регистрации'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function toggleForm() {
+  isLoginForm.value = !isLoginForm.value
+  errorMessage.value = ''
+}
 </script>
 
-<template>  
-    <form class="main-window" @submit="authorizationFunc">
-        <div class="sign-up-window">
-        <h1 class="window-title">Вход в аккаунт</h1>
-        <hr>
-        
-        <!-- Сообщение об ошибке -->
-        <div v-if="errorMessage" class="error-message">
-            {{ errorMessage }}
-        </div>
-        
-        <div class="form-inputs">
-            <input 
-                v-model="formData.username" 
-                class="form-input" 
-                type="text" 
-                placeholder="Логин"
-                :disabled="isLoading"
-            >
-            <input 
-                v-model="formData.password" 
-                class="form-input" 
-                type="password" 
-                placeholder="Пароль"
-                :disabled="isLoading"
-            >
-        </div>
-        
-        <div class="sign-in-buttons">
-            <button 
-                type="submit" 
-                class="sign-in-button"
-                :disabled="isLoading"
-            >
-                {{ isLoading ? 'Вход...' : 'Войти' }}
-            </button>
-            
-            <p class="or-text">или</p>
-            
-            <button 
-                type="button" 
-                class="sign-in-twitch-button"
-                :disabled="isLoading"
-            >
-                <p>Войти через</p>
-                <img src="../images/twitchLogo.svg" alt="Twitch">
-            </button>
+<template>
+  <div class="auth-container">
+    <div class="auth-form">
+
+      <div class="auth-header">
+        <h1>{{ isLoginForm ? 'Вход' : 'Регистрация' }}</h1>
+        <img @click="useAuthStore().isOpenSignInComponent = !useAuthStore().isOpenSignInComponent" class="close-button" src="../images/close-button.png" alt="">
+      </div>
+
+      <form @submit.prevent="isLoginForm ? handleLogin() : handleRegister()" class="auth-content">
+        <!-- Форма логина -->
+        <div v-if="isLoginForm" class="form-group">
+          <input
+            v-model="loginData.email"
+            type="email"
+            placeholder="Email"
+            class="auth-input"
+            :disabled="isLoading"
+            autocomplete="email"
+          >
+          <input
+            v-model="loginData.password"
+            type="password"
+            placeholder="Пароль"
+            class="auth-input"
+            :disabled="isLoading"
+            autocomplete="current-password"
+          >
         </div>
 
-        <div class="question-buttons">
-            <a 
-                @click="authStore.isChatOpen = !authStore.isChatOpen" 
-                href="#" 
-                class="sign-up-text"
-            >
-                Нет аккаунта ?
-            </a>
-            <a href="#" class="sign-up-text">Забыли пароль ?</a>
+        <!-- Форма регистрации -->
+        <div v-else class="form-group">
+          <input
+            v-model="registerData.username"
+            type="text"
+            placeholder="Имя пользователя"
+            class="auth-input"
+            :disabled="isLoading"
+            autocomplete="username"
+          >
+          <input
+            v-model="registerData.email"
+            type="email"
+            placeholder="Email"
+            class="auth-input"
+            :disabled="isLoading"
+            autocomplete="email"
+          >
+          <input
+            v-model="registerData.password"
+            type="password"
+            placeholder="Пароль"
+            class="auth-input"
+            :disabled="isLoading"
+            autocomplete="new-password"
+          >
+          <input
+            v-model="registerData.confirmPassword"
+            type="password"
+            placeholder="Подтвердите пароль"
+            class="auth-input"
+            :disabled="isLoading"
+            autocomplete="new-password"
+          >
         </div>
+
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
+        <button 
+          type="submit" 
+          class="auth-button"
+          :disabled="isLoading"
+          :class="{ loading: isLoading }"
+        >
+          <span v-if="!isLoading">{{ isLoginForm ? 'Войти' : 'Зарегистрироваться' }}</span>
+          <span v-else>Загрузка...</span>
+        </button>
+
+        <div class="auth-footer">
+
+            <button type="button" @click="toggleForm" class="auth-toggle">
+              {{ isLoginForm ? 'Нет аккаунта?' : 'Есть аккаунт?' }}
+            </button>
+
+        </div>
+      </form>
     </div>
-</form>
+  </div>
 </template>
 
 <style scoped>
-@import '../assets/base.scss';
+*{
+  transition: all 0.3s ease;
+}
+@font-face {
+  font-family: 'PPmori-Regular';
+  src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('woff2');
+}
 
-.main-window {  
+.close-button {
+  height: 25px;
+  cursor: pointer;
+  &:hover{
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(.95);
+  }
+}
+.auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: transparent;
+    backdrop-filter: blur(10px);
+    position: fixed;
+    z-index: 3;
+    width: 100%;
 }
 
-.sign-up-window {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    position: relative;
-    top: 120px;
-    background: #1C1C1C;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
-    border: 2px solid #6F6F6F;
-    padding: 100px 50px;
-    position: relative;
+.auth-form {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background-color: #151515d2
 }
 
-.window-title {
-    font-family: 'Raleway-SemiBold', sans-serif;
-    color: white;
-    font-size: 28px;
-    letter-spacing: 2px;
-    text-align: center;
+.auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
 }
 
-hr {
-    border: 1px solid #6441a5;
-    width: 80%;
-    margin: 0 auto;
-    border-radius: 5px;
+.auth-header h1 {
+  color: white;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+  font-family: 'PPmori-Regular', sans-serif;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.auth-input {
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-family: 'PPmori-Regular', sans-serif;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #6441a1;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.02);
+}
+
+.auth-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .error-message {
-    background: #FF695B;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-family: 'Raleway-SemiBold', sans-serif;
-    font-size: 14px;
-    text-align: center;
-    animation: slideDown 0.3s ease;
+  color: #FF695B;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.form-inputs {
-    width: 400px;
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.auth-button {
+  width: 100%;
+  padding: 15px;
+  background: #6441a1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'PPmori-Regular', sans-serif;
 }
 
-.form-input {
-    width: 80%;
-    height: 30px;
-    background: #1C1C1C;
-    border: 2px solid #6F6F6F;
-    border-radius: 5px;
-    color: white;
-    font-family: 'Raleway-SemiBold', sans-serif;
-    font-size: 14px;
-    padding: 20px 15px;
-    margin-bottom: 25px;
-    outline: none;
-
-    &:focus {
-        border: 2px solid #6441a5;
-    }
-    
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+.auth-button:hover:not(:disabled) {
+  background: #7d5bbe;
+  transform: translateY(-2px);
 }
 
-.sign-up-text {
-    cursor: pointer;
-    font-family: 'Raleway-SemiBold', sans-serif;
-    color: #6441a5;
-    font-size: 14px;
-    text-align: center;
-
-    &:hover {
-        text-decoration: underline;
-    }
+.auth-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.question-buttons {
-    display: flex;
-    align-items: center;
-    gap: 100px;
-    margin-top: 20px;
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.sign-in-twitch-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    height: 40px;
-    padding: 0 20px;
-    background: #6441a5;
-    border: none;
-    border-radius: 5px;
-    font-family: 'Raleway-SemiBold', sans-serif;
-    color: white;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
-    
-    &:hover:not(:disabled) {
-        opacity: 0.9;
-    }
-    
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+.auth-button.loading {
+  background: #4a2d7d;
 }
 
-.sign-in-button {
-    height: 40px;
-    padding: 0 30px;
-    background: #1c1c1c;
-    border: 1px solid #6441a5;
-    border-radius: 5px;
-    font-family: 'Raleway-SemiBold', sans-serif;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    
-    &:hover:not(:disabled) {
-        background-color: #6441a5;
-    }
-    
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        border-color: #6F6F6F;
-    }
+.auth-footer {
+  text-align: center;
 }
 
-.sign-in-buttons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+.auth-footer p {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size: 14px;
 }
 
-.or-text {
-    font-family: 'Raleway-SemiBold', sans-serif;
-    color: white;
-    font-size: 14px;
+.auth-toggle {
+  background: none;
+  border: none;
+  color: #6441a1;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+  padding: 0;
+  margin-left: 5px;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.auth-toggle:hover {
+  color: #7d5bbe;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-form {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .auth-form {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+  
+  .auth-header h1 {
+    font-size: 24px;
+  }
 }
 </style>

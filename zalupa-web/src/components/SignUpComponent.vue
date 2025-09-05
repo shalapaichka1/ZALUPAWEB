@@ -84,6 +84,7 @@ const submitForm = async () => {
 
         <!-- Поле "Пароль" -->
         <input
+          
           v-model="formData.password"
           class="form-input"
           :class="{ 'error-border': v$.password.$errors.length }"
@@ -128,6 +129,7 @@ const submitForm = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #15151525;
 }
 
 .sign-up-window {
@@ -140,7 +142,7 @@ const submitForm = async () => {
   top: 120px;
   width: 550px;
   height: 600px;
-  background: #1C1C1C;
+  background: #151515;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
   border-radius: 5px;
   border: 2px solid #6F6F6F;
@@ -172,7 +174,7 @@ hr {
 .form-input {
   width: 80%;
   height: 30px;
-  background: #1C1C1C;
+  background: #151515;
   border: 2px solid #6F6F6F;
   border-radius: 5px;
   color: white;

@@ -1,7 +1,10 @@
 <script setup>
 import { useAuthStore } from '../stores/auth'
+import { ref } from 'vue'
 
-const useStore = useAuthStore()
+function OpenSignInComponent(){
+    useAuthStore().isOpenSignInComponent = !useAuthStore().isOpenSignInComponent
+}
 </script>
 <template>
     <div class="header">
@@ -17,24 +20,27 @@ const useStore = useAuthStore()
         </div>
 
         <div class="header-buttons">
-            <div v-if="useStore.isModeration" class="header-moderation-div">
+            <div v-if="useAuthStore().isModeration" class="header-moderation-div">
                 <img class="banana" src="../images/banana.svg" alt="">
                 <a href="/moderation" class="moderation-button">Режим модератора</a>
             </div>
 
             <div class="header-user-buttons">
-                <a href="/signup"><img class="header-plus hub" src="../images/user.svg" alt=""></a>
+                <button class="open-sign-in-component-button" @click="OpenSignInComponent"><img class="header-plus hub" src="../images/user.svg" alt=""></button>
             </div>
-
         </div>   
     </div>
 </template>
 
 <style scoped>
 
+.open-sign-in-component-button {
+    border: none;
+    background: none;
+    width: 60px;
+}
 a:active {
     color: #6441a5;
-
 }
 
 .header-navigation {
@@ -87,5 +93,9 @@ a:active {
         transition: 0.3s;
         transform: scale(0.98);
     }
+}
+
+.header {
+    padding: 15px;
 }
 </style>

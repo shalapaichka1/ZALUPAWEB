@@ -195,9 +195,9 @@ async function changeCategorySelect(event, video_id) {
 
                     </div>
                     <div class="video-element-buttons">
-                        <button style="background-color: #ACFF9E; color: #1c1c1c;" class="button-yes">Смотрим</button>
-                        <button style="background-color: #FFD28F; color: #1c1c1c;" class="button-mb">Мб смотрим</button>
-                        <button style="background-color: #FF695B; color: #1c1c1c;" class="button-no">Хуйня</button>
+                        <button style="background-color: #ACFF9E; color: #151515;" class="button-yes">Смотрим</button>
+                        <button style="background-color: #FFD28F; color: #151515;" class="button-mb">Мб смотрим</button>
+                        <button style="background-color: #FF695B; color: #151515;" class="button-no">Хуйня</button>
                     </div>
 
 
@@ -227,7 +227,6 @@ async function changeCategorySelect(event, video_id) {
     left: 50%;
     transform: translate(-50%, -50%);
   font-size: 24px;
-  font-family: 'PPmori-Regular', sans-serif;
   font-weight: 800;
   color: white;
   text-align: center;
@@ -256,7 +255,6 @@ async function changeCategorySelect(event, video_id) {
 
 .moderation-video-title {
     color: white;
-    font-family: 'PPmori-Regular', sans-serif;
 }
 .video-element-title {
     height: 100%;
@@ -321,7 +319,7 @@ async function changeCategorySelect(event, video_id) {
     margin: 15px;
     height: 30vh;
     width: 84vh;
-    background-color: #1C1C1C;
+    background-color: #151515;
     display: flex;
     border-radius: 15px;
     border: 1px solid #fff;
@@ -382,7 +380,7 @@ async function changeCategorySelect(event, video_id) {
     flex-direction:row;
     justify-content: space-between;
     align-items: center;
-    background-color: #0000002f;
+    background-color: #1515152f;
     backdrop-filter: blur(70px);
 }
 </style>

@@ -5,11 +5,10 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid $primaryBlack;
-    background-color: $secondBlack;
-    padding: 0px 15px;
     height: 60px;
     width: inherit;
     box-shadow: 0 1px 10px 0 black;
+    padding: 15px;
 }
 
 .header-logo-title {
@@ -33,16 +32,6 @@
 .header-user-buttons {
     display: flex;
     align-items: center;
-}
-
-.hub {
-    width: 70px;
-    padding: 16px;
-    cursor: pointer;
-
-    &:hover {
-        background-color: $hoverBlack;
-    }
 }
 
 .hub:active, .header-navigation > a:active {

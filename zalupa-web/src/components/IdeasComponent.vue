@@ -228,7 +228,6 @@ function resetForm() {
 }
 
 .section-title {
-  font-family: 'PPmori-Regular', sans-serif;
   font-size: 28px;
   color: white;
   margin-bottom: 30px;
@@ -237,7 +236,7 @@ function resetForm() {
 
 /* Форма */
 .idea-form {
-  background: #1C1C1C;
+  background: #151515;
   padding: 30px;
   border-radius: 15px;
   border: 2px solid #6F6F6F;
@@ -250,7 +249,6 @@ function resetForm() {
 
 .form-group label {
   display: block;
-  font-family: 'PPmori-Regular', sans-serif;
   color: white;
   margin-bottom: 8px;
   font-weight: 600;
@@ -265,7 +263,6 @@ function resetForm() {
   border: 2px solid #6F6F6F;
   border-radius: 8px;
   color: white;
-  font-family: 'PPmori-Regular', sans-serif;
   font-size: 14px;
 }
 
@@ -302,7 +299,6 @@ function resetForm() {
   padding: 12px 25px;
   border: none;
   border-radius: 8px;
-  font-family: 'PPmori-Regular', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -338,7 +334,6 @@ function resetForm() {
   border-radius: 8px;
   margin: 15px 0;
   text-align: center;
-  font-family: 'PPmori-Regular', sans-serif;
 }
 
 .status-message.success {
@@ -359,7 +354,7 @@ function resetForm() {
 }
 
 .idea-card {
-  background: #1C1C1C;
+  background: #151515;
   padding: 20px;
   border-radius: 12px;
   border: 2px solid #6F6F6F;
@@ -381,7 +376,6 @@ text-wrap: wrap;
 }
 
 .idea-title {
-  font-family: 'PPmori-Regular', sans-serif;
   color: white;
   font-size: 18px;
   margin: 0;
@@ -412,7 +406,6 @@ text-wrap: wrap;
 
 .idea-description {
   color: #CCC;
-  font-family: 'PPmori-Regular', sans-serif;
   line-height: 1.5;
   margin-bottom: 15px;
 }
@@ -430,7 +423,6 @@ text-wrap: wrap;
   text-align: center;
   padding: 40px;
   color: #666;
-  font-family: 'PPmori-Regular', sans-serif;
 }
 
 /* Адаптивность */
@@ -456,20 +448,5 @@ text-wrap: wrap;
   .cancel-btn {
     width: 100%;
   }
-}
-</style>
-
-<style>
-/* Глобальные стили для шрифта */
-@font-face {
-  font-family: 'PPmori-Regular';
-  src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-body {
-  font-family: 'PPmori-Regular', sans-serif;
 }
 </style>
