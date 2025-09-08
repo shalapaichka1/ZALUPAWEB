@@ -9,7 +9,6 @@ const isLoading = ref(false)
 const isEditings = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
-const userInfo = ref([])
 
 const isEditing = ref({
     email: false,
@@ -25,13 +24,6 @@ const profileData = ref({
   createdAt: '',
   telegram: '',
   phoneNumber: ''
-})
-
-
-onMounted(async () => {
-    const res = await instance.get(`users?filters[username]=${Cookies.get('username')}`)
-    userInfo.value = res.data[0]
-    profileData.value.createdAt = res.data[0].createdAt.split('T')[0]
 })
 
 async function changePassword() {
@@ -99,10 +91,10 @@ function logout() {
     <div class="profile-form">
       <div class="profile-header">
         <div class="profile-header-username">
-            <h1>{{ Cookies.get('username') }}</h1>
+            <h1>{{ useAuthStore().userInfo.username }}</h1>
             <div class="user-status-medals">
-            <img v-if="userInfo.isVerified" class="verified" src="../images/verified.png" alt="">
-            <img v-if="userInfo.isModerator" class="verified" src="../images/moderator.png" alt="">
+            <img v-if="useAuthStore().userInfo.isVerified" class="verified" src="../images/verified.png" alt="">
+            <img v-if="useAuthStore().userInfo.isModerator" class="verified" src="../images/moderator.png" alt="">
             </div>
 
         </div>
@@ -140,12 +132,12 @@ function logout() {
             <div class="input-button">
                 <input
                 v-if="isEditing.username"
-                v-model="profileData.username"
+                v-model="useAuthStore().userInfo.username"
                 type="text"
                 class="auth-input"
                 :disabled="isLoading"
                 >
-            <span v-else class="info-value">{{userInfo.username}}</span>
+            <span v-else class="info-value">{{useAuthStore().userInfo.username}}</span>
             
                 <button @click="isEditing.username=!isEditing.username" class="secondary" :disabled="isLoading">
                     <img v-if="!isEditing.username" class="edit-button" src="../images/editPencil.png" alt="">
@@ -159,12 +151,12 @@ function logout() {
             <div class="input-button">
             <input
               v-if="isEditing.email"
-              v-model="profileData.email"
+              v-model="useAuthStore().userInfo.email"
               type="text"
               class="auth-input"
               :disabled="isLoading"
             >
-            <span v-else class="info-value">{{userInfo.email}}</span>
+            <span v-else class="info-value">{{useAuthStore().userInfo.email}}</span>
                 <button @click="isEditing.email=!isEditing.email" class="secondary" :disabled="isLoading">
                     <img v-if="!isEditing.email" class="edit-button" src="../images/editPencil.png" alt="">
                     <img v-else class="edit-button" src="../images/Done.png" alt="">
@@ -177,12 +169,12 @@ function logout() {
             <div class="input-button">
             <input
               v-if="isEditing.telegram"
-              v-model="profileData.telegram"
+              v-model="useAuthStore().userInfo.telegram"
               type="text"
               class="auth-input"
               :disabled="isLoading"
             >
-            <span v-else class="info-value">{{userInfo.telegram? asd:userInfo.telegram}}</span>
+            <span v-else class="info-value">{{useAuthStore().userInfo.telegram}}</span>
                 <button @click="isEditing.telegram=!isEditing.telegram" class="secondary" :disabled="isLoading">
                     <img v-if="!isEditing.telegram" class="edit-button" src="../images/editPencil.png" alt="">
                     <img v-else class="edit-button" src="../images/Done.png" alt="">
@@ -192,7 +184,7 @@ function logout() {
           
           <div class="info-group">
             <label>На сайте с:</label>
-            <span class="info-value">{{profileData.createdAt}}</span>
+            <span class="info-value">{{useAuthStore().userInfo.createdAt}}</span>
           </div>
         </div>
 

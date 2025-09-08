@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import SignUpComponent from './SignUpComponent.vue'
 import { instance } from '../../services/axios/instance'
+import Cookies from 'js-cookie'
 
 const authStore = useAuthStore()
 
@@ -24,7 +25,6 @@ const registerData = ref({
 })
 
 async function handleLogin() {
-  const res = await instance.get(`/users?filters[email]`)
   if (!loginData.value.email || !loginData.value.password) {
     errorMessage.value = 'Заполните все поля'
     return
@@ -34,8 +34,35 @@ async function handleLogin() {
   errorMessage.value = ''
 
   try {
-    await authStore.authorizationUser(loginData.value.email, loginData.value.password)
-    useAuthStore().isOpenSignInComponent = false
+    await instance
+      .post('/auth/local', {
+        identifier: loginData.value.email,
+        password: loginData.value.password,
+      })
+      .then(response => {
+        // Handle success.
+        console.log('Well done!');
+        console.log('User profile', response.data.user);
+        console.log('User token', response.data.jwt);
+
+        Cookies.set('username', response.data.user.username)
+
+        useAuthStore().userInfo = response.data.user
+
+        useAuthStore().isOpenSignInComponent = false
+        useAuthStore().isAuthorized = true
+      })
+      .catch(error => {
+        // Handle error.
+        console.log('An error occurred:', error.response);
+
+        const {status, data} = error.response
+
+        switch(status){
+          case(400):
+            errorMessage.value = "Неверный логин или пароль"
+        }
+      });
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Ошибка авторизации'
   } finally {
@@ -64,11 +91,22 @@ async function handleRegister() {
   errorMessage.value = ''
 
   try {
-    await authStore.addNewUser(
-      registerData.value.username,
-      registerData.value.email,
-      registerData.value.password
-    )
+    await instance
+  .post('/auth/local/register', {
+    username: registerData.value.username,
+    email: registerData.value.email,
+    password: registerData.value.password,
+  })
+  .then(response => {
+    // Handle success.
+    console.log('Well done!');
+    console.log('User profile', response.data.user);
+    console.log('User token', response.data.jwt);
+  })
+  .catch(error => {
+    // Handle error.
+    console.log('An error occurred:', error.response);
+  });
     // После успешной регистрации переключаемся на логин
     isLoginForm.value = true
     successMesage.value = 'Регистрация успешна! Теперь войдите в аккаунт.'
@@ -100,7 +138,6 @@ function toggleForm() {
         <div v-if="isLoginForm" class="form-group">
           <input
             v-model="loginData.email"
-            type="email"
             placeholder="Email"
             class="auth-input"
             :disabled="isLoading"

@@ -1,7 +1,7 @@
 <script setup>
     import {ref} from 'vue'
 
-    import { authorizationUser, useAuthStore } from '@/stores/auth';
+    import { useAuthStore } from '@/stores/auth';
 
     import { instance } from '../../services/axios/instance';
 

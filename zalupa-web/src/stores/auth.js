@@ -18,37 +18,23 @@ const isOpenSignInComponent = ref(false)
 const isDarkTheme = ref(true)
 const isProfileOpen = ref(false)
 const isAuthorized = ref(document.cookie.includes('username='))
-const userInfo = ref([])
-
-export const authorizationUser = async (username, password) => {
-  await instance
-    .post('/auth/local', {
-      identifier: username,
-      password: password
-    })
-    .then((response) => {
-      // Handle success.
-      isModeration.value = response.data.user.isModerator
-      console.log('Well done!')
-      console.log('User profile', response.data.user)
-      console.log('User moderator ?', isModeration.value)
-      Cookies.set('username', response.data.user.username)
-      console.log(userInfo.value)
-      console.log(isModeration.value)
-    })
-    .catch((error) => {
-      // Handle error.
-      console.log('An error occurred:', error.response)
-    })
-    isAuthorized.value = true
-}
+const userInfo = ref({
+  username: '',
+  password: '',
+  email: '',
+  isModerator: false,
+  isVerified: false,
+  confirmed: true,
+  blocked: false,
+  telegram: '',
+  phoneNumber: ''
+})
 
 const login = async (email, password) => {
   try {
     setLoading(true)
     clearError()
 
-    // Валидация
     if (!email || !password) {
       throw new Error('Email и пароль обязательны')
     }
@@ -227,7 +213,6 @@ function getCookie(name) {
     getVideos,
     sortInput,
     sortIsChecked,
-    authorizationUser,
     isListEmpty,
     login,
     isOpenSignInComponent,

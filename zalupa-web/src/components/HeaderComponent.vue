@@ -10,8 +10,9 @@ import Cookies from 'js-cookie'
 import { instance } from '../../services/axios/instance'
 
 onMounted(async () => {
-    const res = await instance.get(`users?filters[username]=${Cookies.get('username')}`)
-    useAuthStore().isModeration = res.data[0].isModerator
+    const res = await instance.get(`/users?filters[username]=${Cookies.get('username')}`)
+    console.log(Object.values(useAuthStore().userInfo).length)
+        useAuthStore().userInfo = res.data[0]
     })
 function openSignInComponent(){
     useAuthStore().isOpenSignInComponent = !useAuthStore().isOpenSignInComponent
@@ -37,7 +38,7 @@ function openProfile(){
         <div class="header-buttons">
             <DarkThemeButtonComponent v-if="useAuthStore().isDarkTheme"/>
             <LightThemeButtonComponent v-else/>
-            <div v-if="useAuthStore().isModeration" class="header-moderation-div">
+            <div v-if="useAuthStore().userInfo.isModerator" class="header-moderation-div">
                 <img class="banana" src="../images/banana.svg" alt="">
                 <a href="/moderation" class="moderation-button">Режим модератора</a>
             </div>
