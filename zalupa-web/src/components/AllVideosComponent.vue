@@ -20,6 +20,7 @@ const videoStatusColors = {
 
 // Используем хук жизненного цикла
 onMounted(async () => {
+  isFavoriteForMe()
   await useAuthStore().getVideos
   
   // Дополнительная проверка через instance
@@ -69,9 +70,13 @@ async function handleAuthorClick(videoUrl, authorName, event) {
   }
 }
 
-async function isFavoriteForMe(){
-  const res = await instance.get('/users')
-}
+async function isFavoriteForMe(el){
+  const res = await instance.get(`/videos?filters[users]?users[username]=${Cookies.get('username')}`)
+  res.data.data.forEach(element => {
+    console.log(element)
+  });
+  
+  }
 </script>
 
 <template>
@@ -96,7 +101,8 @@ async function isFavoriteForMe(){
         <div class="overlay-buttons">
           <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
           <button class="like-button">
-            <img v-if="isFavoriteForMe" class="like1-image" src="../images/favorite1.png" alt="">
+            <img v-if="isFavoriteForMe(el.id)" class="like1-image" src="../images/favorite1.png" alt="">
+            <img v-else class="like1-image" src="../images/favorite2.png" alt="">
             <span>{{ el.like_count }}</span>
           </button>
         </div>

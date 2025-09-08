@@ -18,6 +18,7 @@ const isOpenSignInComponent = ref(false)
 const isDarkTheme = ref(true)
 const isProfileOpen = ref(false)
 const isAuthorized = ref(document.cookie.includes('username='))
+const myFavorites = ref ([])
 const userInfo = ref({
   username: '',
   password: '',
@@ -220,6 +221,7 @@ function getCookie(name) {
     isProfileOpen,
     deleteAllCookies,
     isAuthorized,
-    userInfo
+    userInfo,
+    myFavorites
   }
 })

@@ -11,7 +11,10 @@ import Cookies from 'js-cookie';
   function openVideoButtonConditionFunction() { 
     useAuthStore().isOpenCloseAddVideoModule = true
   }
-
+  async function switchVideoModulesFunctionFavorites() {
+    const res = await instance.get(`/videos?filters[users]?users[username]=${Cookies.get('username')}`)
+    useAuthStore().videoList = res.data.data
+  }
   async function switchVideoModulesFunctionAll() {
         const res = await instance.get(`/videos`)
     useAuthStore().videoList = res.data.data
@@ -81,6 +84,7 @@ import Cookies from 'js-cookie';
     <div class="switch-video-modules">
       <button @click="switchVideoModulesFunctionAll">Все видео</button>
       <button @click="switchVideoModulesFunction">Ваши видео</button>
+      <button @click="switchVideoModulesFunctionFavorites">Избранное</button>
     </div>
     <div class="navigation">
 
