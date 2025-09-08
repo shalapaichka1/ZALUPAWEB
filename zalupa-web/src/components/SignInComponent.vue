@@ -30,7 +30,6 @@ async function handleLogin() {
   errorMessage.value = ''
 
   try {
-    alert(loginData.value.email)
     await authStore.authorizationUser(loginData.value.email, loginData.value.password)
     // Авторизация успешна, можно перенаправить или обновить состояние
   } catch (error) {
