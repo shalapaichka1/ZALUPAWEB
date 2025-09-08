@@ -186,11 +186,23 @@ async function changeCategorySelect(event, video_id) {
                             <option value="Политика">Политика</option>
                             <option value="Другое">Другое</option>
                         </select>
-                            <button v-if="i.is_checked" @click="switchCheckedVideo(i.id)">Просмотренно
-                                <img  class="is-checked-icon" src="../images/accept.svg" alt="" style="background-color: #85c57a; border-radius: 50%;">
-
+                        <div class="video-element-actions">
+                            <button v-if="i.is_checked" class="video-element-actions-buttons is-checked-button"  @click="switchCheckedVideo(i.id)">
+                                <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
                             </button>
-                            <button v-else @click="switchCheckedVideo(i.id)">Не просмотренно</button>
+                            <button v-else class="video-element-actions-buttons not-is-checked-button" @click="switchCheckedVideo(i.id)">
+                                <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
+                            </button>
+
+                            <button v-if="i.isFirstTab" class="video-element-actions-buttons is-first-tab-button">
+                                <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
+                            </button>
+
+                            <button v-else class="video-element-actions-buttons not-is-first-tab-button">
+                                <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
+                            </button>
+                        </div>
+
 
 
                     </div>
@@ -221,6 +233,25 @@ async function changeCategorySelect(event, video_id) {
     transition: .2s;
 }
 
+.video-element-actions-img {
+    width: 25px;
+}
+.is-checked-button {
+    filter: grayscale(100%);
+}
+
+.is-first-tab-button {
+    filter: grayscale(100%);
+}
+.video-element-actions-buttons {
+    width: 100%;
+}
+.video-element-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+}
 .no-videos-found {
     position: absolute;
     top: 50%;
@@ -260,6 +291,8 @@ async function changeCategorySelect(event, video_id) {
     height: 100%;
 }
 .video-element-link {
+    word-wrap: break-word;
+    max-width: 600px;
     font-size: 22px;
     margin-bottom: 15px;
     &:hover{

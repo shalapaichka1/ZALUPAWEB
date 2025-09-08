@@ -1,12 +1,15 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import SignUpComponent from './SignUpComponent.vue'
+import { instance } from '../../services/axios/instance'
 
 const authStore = useAuthStore()
 
 const isLoginForm = ref(true)
 const isLoading = ref(false)
 const errorMessage = ref('')
+const successMessage = ref('')
 
 const loginData = ref({
   email: '',
@@ -21,6 +24,7 @@ const registerData = ref({
 })
 
 async function handleLogin() {
+  const res = await instance.get(`/users?filters[email]`)
   if (!loginData.value.email || !loginData.value.password) {
     errorMessage.value = 'Заполните все поля'
     return
@@ -31,7 +35,7 @@ async function handleLogin() {
 
   try {
     await authStore.authorizationUser(loginData.value.email, loginData.value.password)
-    // Авторизация успешна, можно перенаправить или обновить состояние
+    useAuthStore().isOpenSignInComponent = false
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Ошибка авторизации'
   } finally {
@@ -67,7 +71,7 @@ async function handleRegister() {
     )
     // После успешной регистрации переключаемся на логин
     isLoginForm.value = true
-    errorMessage.value = 'Регистрация успешна! Теперь войдите в аккаунт.'
+    successMesage.value = 'Регистрация успешна! Теперь войдите в аккаунт.'
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Ошибка регистрации'
   } finally {
@@ -79,6 +83,7 @@ function toggleForm() {
   isLoginForm.value = !isLoginForm.value
   errorMessage.value = ''
 }
+
 </script>
 
 <template>
@@ -149,6 +154,9 @@ function toggleForm() {
 
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
+        </div>
+        <div v-if="successMessage" class="sucess-message">
+          {{ successMessage }}
         </div>
 
         <button 
@@ -269,6 +277,14 @@ function toggleForm() {
 
 .error-message {
   color: #FF695B;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.success-message {
+  color: #85ff58;
   text-align: center;
   margin-bottom: 20px;
   font-size: 14px;

@@ -5,7 +5,7 @@ import { instance } from '../../services/axios/instance'
 import Cookies from 'js-cookie'
 const APIKEY = 'AIzaSyAkAVqh68vBS5M9gDkOGfvZCgc730jpynE'
 const isChatOpen = ref(false)
-const isModeration = ref(true)
+const isModeration = ref(false)
 const isSignIn = ref(false)
 const isOpenCloseAddVideoModule = ref(false)
 const sortCategory = ref('Веселое')
@@ -16,12 +16,10 @@ const videoList = ref([])
 const isListEmpty = ref(false)
 const isOpenSignInComponent = ref(false)
 const isDarkTheme = ref(true)
+const isProfileOpen = ref(false)
+const isAuthorized = ref(document.cookie.includes('username='))
+const userInfo = ref([])
 
-export function changeTheme() {
-  if (isDarkTheme) {
-    
-  }
-}
 export const authorizationUser = async (username, password) => {
   await instance
     .post('/auth/local', {
@@ -30,15 +28,19 @@ export const authorizationUser = async (username, password) => {
     })
     .then((response) => {
       // Handle success.
+      isModeration.value = response.data.user.isModerator
       console.log('Well done!')
-      console.log('User profile', response.data)
-      console.log('User token', response.data.jwt)
+      console.log('User profile', response.data.user)
+      console.log('User moderator ?', isModeration.value)
       Cookies.set('username', response.data.user.username)
+      console.log(userInfo.value)
+      console.log(isModeration.value)
     })
     .catch((error) => {
       // Handle error.
       console.log('An error occurred:', error.response)
     })
+    isAuthorized.value = true
 }
 
 const login = async (email, password) => {
@@ -127,13 +129,15 @@ const login = async (email, password) => {
     setLoading(false)
   }
 }
-async function addNewUser(username, email, password) {
+async function addNewUser(usernames, emails, passwords) {
   try {
     const response = await instance.post('/auth/local/register', {
-      username: username,
-      email: email,
-      password: password
+      username: usernames,
+      email: emails,
+      password: "testpass",
+      isModerator: true
     })
+    alert(passwords)
 
     if (response.status === 201) {
       return {
@@ -167,6 +171,30 @@ export const getVideos = async () => {
   } catch (error) {
     console.error(error)
   }
+}
+
+function deleteAllCookies() {
+  // Получаем все куки
+  const cookies = document.cookie.split(';')
+
+  // Перебираем все куки
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i]
+    const eqPos = cookie.indexOf('=')
+    const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim()
+
+    // Удаляем куки, устанавливая прошлую дату expiration
+    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;'
+
+    // Также удаляем для других возможных путей и доменов
+    document.cookie =
+      name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + document.domain + ';'
+    document.cookie =
+      name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=.' + document.domain + ';'
+  }
+
+  console.log('Все куки были удалены')
+  return true
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -203,6 +231,10 @@ function getCookie(name) {
     isListEmpty,
     login,
     isOpenSignInComponent,
-    isDarkTheme
+    isDarkTheme,
+    isProfileOpen,
+    deleteAllCookies,
+    isAuthorized,
+    userInfo
   }
 })

@@ -17,15 +17,6 @@ $twitchColor: #6441A5;
     src: url('../fonts/LibreBarcode128Text-Regular.ttf');
 }
 
-@font-face {
-    font-family: 'RalewayRegular';
-    src: url(../fonts/Raleway-Regular.ttf);
-}
-
-@font-face {
-    font-family: 'Raleway-SemiBold';
-    src: url(../fonts/Raleway-SemiBold.ttf);
-}
 
 *, *::before, *::after {
     margin: 0;
@@ -64,7 +55,7 @@ button, select, input{
     outline: none;
     padding-right: 15px;
     background-color: #15151570;
-    color: white;
+    color: #ffffff;
     border: 1px solid #494949;
 
     &:hover{
@@ -81,6 +72,6 @@ button, select, input{
 }
 
 .video-element-title {
-    color: white;
+    color: #ffffff;
     font-family:"Raleway-SemiBold", sans-serif
 }

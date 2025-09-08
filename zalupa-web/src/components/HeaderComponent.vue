@@ -1,12 +1,24 @@
 <script setup>
 import { useAuthStore } from '../stores/auth'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import DarkThemeButtonComponent from './DarkThemeButtonComponent.vue'
 import LightThemeButtonComponent from './LightThemeButtonComponent.vue'
+import ProfileComponent from './ProfileComponent.vue'
 
-function OpenSignInComponent(){
+import Cookies from 'js-cookie'
+import { instance } from '../../services/axios/instance'
+
+onMounted(async () => {
+    const res = await instance.get(`users?filters[username]=${Cookies.get('username')}`)
+    useAuthStore().isModeration = res.data[0].isModerator
+    })
+function openSignInComponent(){
     useAuthStore().isOpenSignInComponent = !useAuthStore().isOpenSignInComponent
+}
+
+function openProfile(){
+    useAuthStore().isProfileOpen = !useAuthStore().isProfileOpen
 }
 </script>
 <template>
@@ -31,14 +43,23 @@ function OpenSignInComponent(){
             </div>
 
             <div class="header-user-buttons">
-                <button class="open-sign-in-component-button" @click="OpenSignInComponent"><img class="header-plus hub" src="../images/user.svg" alt=""></button>
+                <button v-if="!useAuthStore().isAuthorized" class="open-sign-in-component-button" @click="openSignInComponent"><img class="header-plus hub" src="../images/Enter.png" alt=""></button>
+                <button v-else class="open-profile-button" @click="openProfile"><img class="header-plus hub" src="../images/user.svg" alt=""></button>
             </div>
         </div>   
     </div>
+    <ProfileComponent v-if="useAuthStore().isProfileOpen"/>
 </template>
 
 <style scoped>
 
+.header {
+    padding: 15px;
+}
+.open-profile-button {
+    height: 60px;
+    width: 60px;
+}
 .open-sign-in-component-button {
     border: none;
     background: none;
@@ -98,9 +119,5 @@ a:active {
         transition: 0.3s;
         transform: scale(0.98);
     }
-}
-
-.header {
-    padding: 15px;
 }
 </style>
