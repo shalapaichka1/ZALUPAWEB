@@ -1,7 +1,7 @@
 <script setup>
 
 import { API } from '../../services/api'
-import { ref, onMounted } from 'vue' // Добавляем onMounted
+import { ref, onMounted, registerRuntimeCompiler } from 'vue' // Добавляем onMounted
 import AddVideoComponent from '@/components/AddVideoComponent.vue'
 import { instance } from '../../services/axios/instance'
 import { useAuthStore } from '../stores/auth'
@@ -70,12 +70,10 @@ async function handleAuthorClick(videoUrl, authorName, event) {
   }
 }
 
-async function isFavoriteForMe(el){
-  const res = await instance.get(`/videos?filters[users]?users[username]=${Cookies.get('username')}`)
-  res.data.data.forEach(element => {
-    console.log(element)
-  });
-  
+
+async function isFavoriteForMe(element){
+return useAuthStore().myFavorites.some(el => el.id == element.id)
+  // console.log([...useAuthStore().myFavorites].includes(el))
   }
 </script>
 
@@ -89,7 +87,6 @@ async function isFavoriteForMe(el){
           {{ videoStatuses[el.agreement_status] }}
         </div>
       </div>
-
       <img class="preview" :src="getHighQualityThumbnail(el.url_id)" :alt="el.title">
       <div class="overlay">
         <h1 class="el-title el-author" 
@@ -100,9 +97,9 @@ async function isFavoriteForMe(el){
         <h1 class="el-title">{{ el.title }}</h1>
         <div class="overlay-buttons">
           <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
-          <button class="like-button">
-            <img v-if="isFavoriteForMe(el.id)" class="like1-image" src="../images/favorite1.png" alt="">
-            <img v-else class="like1-image" src="../images/favorite2.png" alt="">
+          <button @click="toCheckedFunction(el)" class="like-button">
+            <img v-if="isFavoriteForMe(el)" class="like1-image" src="../images/favorite2.png" alt="">
+            <img v-else class="like1-image" src="../images/favorite1.png" alt="">
             <span>{{ el.like_count }}</span>
           </button>
         </div>

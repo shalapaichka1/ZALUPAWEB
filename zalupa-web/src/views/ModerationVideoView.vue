@@ -1,9 +1,14 @@
 <script setup>
     import {ref} from 'vue'
-
     import { useAuthStore } from '@/stores/auth';
-
     import { instance } from '../../services/axios/instance';
+
+    const statusesList = {
+        0: 'moderation',
+        1: 'accepted',
+        2: 'jejected',
+        3: 'mb'
+    }
 
     const videoList = ref([])
     function mounted() {
@@ -38,8 +43,15 @@
     async function onChangeCategorySelect(event) {
     useAuthStore().sortCategory = event.target.value
     try {
+        if (useAuthStore().sortCategory == "firstTab") {
+            const res = await instance.get(`/videos/?filters[isFirstTab]=true`)
+            useAuthStore().videoList = res.data.data
+        }
+        else {
       const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}`)
       useAuthStore().videoList = res.data.data
+        }
+
     } catch(error){
         console.error(error)
     }
@@ -83,24 +95,55 @@
     }
   }
 
-  async function switchCheckedVideo(video_id) {
-  try {
-    const response = await instance.put(`/videos/${video_id}`, {
-        data: {
-            is_checked: true,
-      },
-    },
-    {    
-        headers: {
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzU2NzI2ODgyLCJleHAiOjE3NTkzMTg4ODJ9.KvxpRggSAStbYcEyVxHk8fhVHNcZOKGHHoLGo5NfGX0',}
+async function toCheckedFunction(el, isCheck){
+    console.log(el.documentId)
+  const res = await instance.put(`videos/${el.documentId}`,{
+    data:{
+      is_checked: !isCheck
     }
-)
-    console.log(url_id, conditon)
-    return response.data
-  } catch (error) {
-    console.error('Ошибка обновления:', error)
-    throw error
-  }
+  })
+  .then(res => {
+    console.log('updates:', res.data);
+  })
+  .catch(error => {
+    console.log(error.res)
+  })
+
+  useAuthStore().getVideos()
+}
+
+async function toFirstTabFunction(el, isFT){
+    console.log(el.documentId)
+  const res = await instance.put(`videos/${el.documentId}`,{
+    data:{
+      isFirstTab: !isFT
+    }
+  })
+  .then(res => {
+    console.log('updates:', res.data);
+  })
+  .catch(error => {
+    console.log(error.res)
+  })
+
+  useAuthStore().getVideos()
+}
+
+async function changeAgreementStatusFunction(el, status){
+    console.log(el.documentId)
+  const res = await instance.put(`videos/${el.documentId}`,{
+    data:{
+      agreement_status: status
+    }
+  })
+  .then(res => {
+    console.log('updates:', res.data);
+  })
+  .catch(error => {
+    console.log(error.res)
+  })
+
+  useAuthStore().getVideos()
 }
 
 async function changeCategorySelect(event, video_id) {
@@ -125,6 +168,9 @@ async function changeCategorySelect(event, video_id) {
     throw error;
   }
 }
+async function showStatus(el) {
+    console.log(statusesList[el.agreement_status])
+}
     mounted()
 </script>
 
@@ -135,6 +181,7 @@ async function changeCategorySelect(event, video_id) {
             <div class="moderation-video-main-area-header-search-area">
                 <input v-model='useAuthStore().sortInput' @input="videoSearch" class="moderation-video-main-area-header-search" type="text" name="" id="" placeholder="Поиск">
                 <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
+                    <option value="firstTab">В первую очередь ⭐</option>
                     <option value="Веселое">Веселое</option>
                     <option value="Трукрайм">Трукрайм</option>
                     <option value="Разоблачения">Разоблачения</option>
@@ -164,17 +211,13 @@ async function changeCategorySelect(event, video_id) {
         
         <div class="moderation-video-main-area-content">
             <h1 class="no-videos-found" v-if="useAuthStore().isListEmpty">По запросу "{{  useAuthStore().sortInput }}" ничего не найдено</h1>
-
             <div :v-model="videoList" v-for="(i, documentId) in useAuthStore().videoList" :key="documentId" :class="'moderation-video-list-element ' + i.id" >
                 
                 <div class="video-element-info">
                     <h1 class="video-element-title">{{ i.title }}</h1>
-
+                    <p>{{ showStatus(i) }}</p>
                     <div class="moderation-video-main-area-content-element-info-header">
-
                     </div>
-
-
                     <a target="_blank" :href="i.url" class="video-element-link">{{ i.url }}</a>
                     <div>
                         <div class="video_element_info_section_2">
@@ -187,29 +230,26 @@ async function changeCategorySelect(event, video_id) {
                             <option value="Другое">Другое</option>
                         </select>
                         <div class="video-element-actions">
-                            <button v-if="i.is_checked" class="video-element-actions-buttons is-checked-button"  @click="switchCheckedVideo(i.id)">
+                            <button  v-if="i.is_checked" class="video-element-actions-buttons is-checked-button"  @click="toCheckedFunction(i, i.is_checked)">
                                 <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
                             </button>
-                            <button v-else class="video-element-actions-buttons not-is-checked-button" @click="switchCheckedVideo(i.id)">
+                            <button v-else class="video-element-actions-buttons not-is-checked-button" @click="toCheckedFunction(i, i.is_checked)">
                                 <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
                             </button>
 
-                            <button v-if="i.isFirstTab" class="video-element-actions-buttons is-first-tab-button">
+                            <button v-if="i.isFirstTab" class="video-element-actions-buttons is-first-tab-button" @click="toFirstTabFunction(i, i.isFirstTab)">
                                 <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
                             </button>
 
-                            <button v-else class="video-element-actions-buttons not-is-first-tab-button">
+                            <button v-else class="video-element-actions-buttons not-is-first-tab-button" @click="toFirstTabFunction(i, i.isFirstTab)">
                                 <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
                             </button>
                         </div>
-
-
-
                     </div>
                     <div class="video-element-buttons">
-                        <button style="background-color: #ACFF9E; color: #151515;" class="button-yes">Смотрим</button>
-                        <button style="background-color: #FFD28F; color: #151515;" class="button-mb">Мб смотрим</button>
-                        <button style="background-color: #FF695B; color: #151515;" class="button-no">Хуйня</button>
+                        <button @click="changeAgreementStatusFunction(i, '1')" style="background-color: #ACFF9E; color: #151515;" class="status-buttons accepted">Смотрим</button>
+                        <button @click="changeAgreementStatusFunction(i, '3')" style="background-color: #FFD28F; color: #151515;" class="status-buttons moderation">Мб смотрим</button>
+                        <button @click="changeAgreementStatusFunction(i, '2')" style="background-color: #FF695B; color: #151515;" class="status-buttons rejecred">Хуйня</button>
                     </div>
 
 
@@ -233,14 +273,25 @@ async function changeCategorySelect(event, video_id) {
     transition: .2s;
 }
 
+.selected-status-button {
+    filter: brightness(100%);
+}
+
+.status-buttons {
+    filter: brightness(50%);
+
+    &:hover {
+        filter: brightness(70%);
+    }
+}
 .video-element-actions-img {
     width: 25px;
 }
-.is-checked-button {
+.not-is-checked-button {
     filter: grayscale(100%);
 }
 
-.is-first-tab-button {
+.not-is-first-tab-button {
     filter: grayscale(100%);
 }
 .video-element-actions-buttons {

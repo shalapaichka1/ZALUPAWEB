@@ -10,8 +10,15 @@ import Cookies from 'js-cookie'
 import { instance } from '../../services/axios/instance'
 
 onMounted(async () => {
+  const isFav = await instance.get(`/videos?filters[users]?users[username]=${Cookies.get('username')}`)
+    useAuthStore().myFavorites = isFav.data.data
+  ;
+
+  const asd = await instance.get(`/videos?populate=users`)
+    useAuthStore().myFavorites.forEach(element => {
+    });
+
     const res = await instance.get(`/users?filters[username]=${Cookies.get('username')}`)
-    console.log(Object.values(useAuthStore().userInfo).length)
         useAuthStore().userInfo = res.data[0]
     })
 function openSignInComponent(){
