@@ -1,47 +1,66 @@
-@import './base.scss';
+$primaryBlack: #151515;
+$thirdBlack: #232323;
+$hoverBlack: #585858;
+$white: #FFFFFF;
+$green: #ACFF9E;
+$red: #FF695B;
+$yellow: #FFD28F;
+$twitchColor: #6441A5;
 
-.header {
+@font-face {
+  font-family: 'PPmori-Regular';
+  src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('woff2');
+}
+
+@font-face {
+    font-family: 'Libre';
+    src: url('../fonts/LibreBarcode128Text-Regular.ttf');
+}
+
+
+*, *::before, *::after{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'PPmori-Regular', sans-serif;
+    transition: all 0.2s ease;
+}
+
+body {
+    background: linear-gradient(45deg, #000000, #151515);
+    overflow: hidden;
+}
+
+button, select, input, .look-video-button{
+    padding: 10px 15px;
+    border-radius: 15px;
+    height: 3rem;
+    cursor: pointer;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid $primaryBlack;
-    height: 60px;
-    width: inherit;
-    box-shadow: 0 1px 10px 0 black;
-    padding: 15px;
-}
+    justify-content: center;
+    gap: 15px;
+    outline: none;
+    padding-right: 15px;
+    background-color: #15151570;
+    border: 1px solid #494949;
 
-.header-logo-title {
-    font-family: 'Libre', sans-serif;
-    font-size: 50px;
-    color: $white;
-}
-
-.header-moderation-div {
-    display: flex;
-    align-items: center;
-    height: 60px;
-    padding: 0 12px;
-}
-
-.header-buttons {
-    display: flex;
-    align-items: center;
-}
-
-.header-user-buttons {
-    display: flex;
-    align-items: center;
-}
-
-.hub:active, .header-navigation > a:active {
-    background-color: $primaryBlack;
-}
-
-@media screen and (max-width: 1440px) {
-    .header-navigation {
-        display: none;
+    &:hover{
+        scale: 1.02;
+        filter: brightness(70%);
+    }
+    &:active {
+        scale: .99;
     }
 }
 
+p, h1, label, select, a, input, select, button, span {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+}
 
+p, a {
+    font-size: 1em;
+}

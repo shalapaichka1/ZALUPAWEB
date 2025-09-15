@@ -51,8 +51,7 @@
             }
 
         await API.videos.addVideo(url.value, comment_text.value);
-        removeComponent()   
-                
+        removeComponent()
         await API.videos.refreshVideoList();
                 
         } catch (error) {
@@ -203,7 +202,6 @@
         color: white;
         border: 1px solid #6441a5;
         cursor: pointer;
-        transition: all 0.3s ease;
     }
 
     .add-video-module button:hover:not(:disabled) {
@@ -224,7 +222,6 @@
         top: 15px;
         right: 15px;
         cursor: pointer;
-        transition: all 0.2s ease;
     }
 
     .add-video-module-close-button:hover {

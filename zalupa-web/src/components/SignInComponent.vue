@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import SignUpComponent from './SignUpComponent.vue'
 import { instance } from '../../services/axios/instance'
 import Cookies from 'js-cookie'
+import {toast} from 'vue3-hot-toast'
 
 const authStore = useAuthStore()
 
@@ -11,6 +12,7 @@ const isLoginForm = ref(true)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const letters = 'йцукенгшщзхъфывапролджэячсмитьбюё'
 
 const loginData = ref({
   email: '',
@@ -46,11 +48,13 @@ async function handleLogin() {
         console.log('User token', response.data.jwt);
 
         Cookies.set('username', response.data.user.username)
+        Cookies.set('isModeration', response.data.user.isModerator)
 
         useAuthStore().userInfo = response.data.user
-
         useAuthStore().isOpenSignInComponent = false
         useAuthStore().isAuthorized = true
+        useAuthStore().isModeration = useAuthStore().userInfo.isModerator
+        toast.success(`Добро пожаловать, ${Cookies.get('username')}`)
       })
       .catch(error => {
         // Handle error.
@@ -102,6 +106,13 @@ async function handleRegister() {
     console.log('Well done!');
     console.log('User profile', response.data.user);
     console.log('User token', response.data.jwt);
+
+    registerData.value.username = ''
+    registerData.value.email = ''
+    registerData.value.password = ''
+    registerData.value.confirmPassword = ''
+
+    toast.success(`Вы успешно зарегистрировались`)
   })
   .catch(error => {
     // Handle error.
@@ -109,14 +120,19 @@ async function handleRegister() {
   });
     // После успешной регистрации переключаемся на логин
     isLoginForm.value = true
-    successMesage.value = 'Регистрация успешна! Теперь войдите в аккаунт.'
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Ошибка регистрации'
   } finally {
     isLoading.value = false
   }
 }
-
+function validateUsername(){
+  letters.split('').forEach(element => {
+    if(registerData.value.username.includes(element)) {
+      errorMessage.value = 'Можно только латинские буквы'
+    }
+  });
+}
 function toggleForm() {
   isLoginForm.value = !isLoginForm.value
   errorMessage.value = ''
@@ -138,10 +154,11 @@ function toggleForm() {
         <div v-if="isLoginForm" class="form-group">
           <input
             v-model="loginData.email"
-            placeholder="Email"
+            placeholder="Почта или логин"
             class="auth-input"
             :disabled="isLoading"
             autocomplete="email"
+
           >
           <input
             v-model="loginData.password"
@@ -162,6 +179,7 @@ function toggleForm() {
             class="auth-input"
             :disabled="isLoading"
             autocomplete="username"
+            @input="validateUsername()"
           >
           <input
             v-model="registerData.email"
@@ -219,14 +237,6 @@ function toggleForm() {
 </template>
 
 <style scoped>
-*{
-  transition: all 0.3s ease;
-}
-@font-face {
-  font-family: 'PPmori-Regular';
-  src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\src\fonts\PPMori-Regular.otf') format('woff2');
-}
-
 .close-button {
   height: 25px;
   cursor: pointer;
@@ -277,7 +287,6 @@ function toggleForm() {
   font-size: 28px;
   font-weight: 600;
   margin: 0;
-  font-family: 'PPmori-Regular', sans-serif;
 }
 
 .form-group {
@@ -293,7 +302,6 @@ function toggleForm() {
   border-radius: 8px;
   color: white;
   font-size: 16px;
-  font-family: 'PPmori-Regular', sans-serif;
 }
 
 .auth-input::placeholder {
@@ -338,7 +346,6 @@ function toggleForm() {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'PPmori-Regular', sans-serif;
 }
 
 .auth-button:hover:not(:disabled) {

@@ -12,22 +12,29 @@ import Cookies from 'js-cookie';
     useAuthStore().isOpenCloseAddVideoModule = true
   }
   async function switchVideoModulesFunctionFavorites() {
-    const res = await instance.get(`/videos?filters[users]?users[username]=${Cookies.get('username')}`)
+    const res = await instance.get(`/videos?filters[users]?users[username]=${Cookies.get('username')}&filters[agreement_status]=1`)
     useAuthStore().videoList = res.data.data
   }
   async function switchVideoModulesFunctionAll() {
-        const res = await instance.get(`/videos`)
+        const res = await instance.get(`/videos?filters[agreement_status]=1`)
     useAuthStore().videoList = res.data.data
   }
   async function switchVideoModulesFunction(){
-    const res = await instance.get(`/videos/?filters[sender]=${Cookies.get('username')}`)
+    const res = await instance.get(`/videos/?filters[sender]=${Cookies.get('username')}& filters[agreement_status]=1`)
     useAuthStore().videoList = res.data.data
   }
   async function onChangeCategorySelect(event) {
     useAuthStore().sortCategory = event.target.value
     try {
-      const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}`)
-      useAuthStore().videoList = res.data.data
+      if (useAuthStore().sortCategory == "Все") {
+        const res = await instance.get(`/videos/?filters[agreement_status]=1`)
+        useAuthStore().videoList = res.data.data
+      }
+      else {
+        const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}&filters[agreement_status]=1`)
+        useAuthStore().videoList = res.data.data
+      }
+
     } catch(error){
         console.error(error)
     }
@@ -39,33 +46,10 @@ import Cookies from 'js-cookie';
         useAuthStore().isListEmpty = false
       }
   }
-
-  async function onChangeAcceptedSelect(event) {
-    useAuthStore().sortAccepted = event.target.value
-
-    try {
-      if (useAuthStore().sortAccepted === 'Все') {
-        const res = await instance.get(`/videos`)
-        useAuthStore().videoList = res.data.data
-      } else {
-        const res = await instance.get(`/videos/?filters[agreement_status]=${useAuthStore().sortAccepted}`)
-        useAuthStore().videoList = res.data.data
-      }
-      if (useAuthStore().videoList.length === 0) {
-        useAuthStore().isListEmpty = true
-      }
-      else {
-        useAuthStore().isListEmpty = false
-      }
-    } catch(error){
-        console.error(error)
-    }
-  }
   async function clearFilters() {
-    useAuthStore().sortCategory = 'Веселое'
-    useAuthStore().sortAccepted = 'Все'
+    useAuthStore().sortCategory = 'Все'
     try {
-      const res = await instance.get(`/videos`)
+      const res = await instance.get(`/videos?filters[agreement_status]=1`)
       useAuthStore().videoList = res.data.data
       if (useAuthStore().videoList.length === 0) {
         useAuthStore().isListEmpty = true
@@ -88,14 +72,8 @@ import Cookies from 'js-cookie';
     </div>
     <div class="navigation">
 
-    <select v-model="useAuthStore().sortAccepted" @change="onChangeAcceptedSelect" class="moderation-video-main-area-header-filter-select" name="video_status_category">
-      <option selected>Все</option>
-      <option value="0">На модерации</option>
-      <option value="1">Принято</option>
-      <option value="2">Отклонено</option>
-    </select>
-
     <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
+      <option value="Все">Все</option>
       <option value="Веселое">Веселое</option>
       <option value="Трукрайм">Трукрайм</option>
       <option value="Разоблачения">Разоблачения</option>
@@ -123,22 +101,8 @@ import Cookies from 'js-cookie';
     <AddVideoComponent/>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 
-.clearButton{
-  background-color: #ff6464;
-  width: 60px;
-
-  img {
-    width: 20px;
-    height: 20px;
-    color: aliceblue;
-  }
-
-  &:hover img {
-    transform: scale(1.5);
-  }
-}
 
 .navigation {
   display: flex;
@@ -146,7 +110,7 @@ import Cookies from 'js-cookie';
 }
 
 .footer {
-  bottom: 0;
+  bottom: -.5rem;
   left: 0;
   z-index: 1;
   width: 100%;
@@ -154,14 +118,14 @@ import Cookies from 'js-cookie';
   display:flex;
   flex-direction: row-reverse;
   padding: 15px;
-  background-color:  #151515d2;
+  background-color:  #15151559;
   backdrop-filter: blur(70px);
 }
 
 .video-view-header {
   position: absolute;
   z-index: 2;
-  background-color: #151515d2;
+  background-color: #15151559;
   box-shadow: 0px 15px 15px 0px #00000073;
   backdrop-filter: blur(70px);
   padding: 15px;

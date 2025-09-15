@@ -75,6 +75,7 @@ function logout() {
     useAuthStore().isAuthorized = false
     useAuthStore().isProfileOpen = false
     useAuthStore().isModeration = false
+    useAuthStore().userInfo.isModerator = false
     useAuthStore().getVideos()
   } catch (error) {
     console.log(error)
@@ -84,6 +85,24 @@ function logout() {
   }
 }
 
+async function changeUsernameButton(isEditing) {
+  if(!isEditing) {
+    const response = await instance.post('/auth/local', {
+      identifier: useAuthStore().userInfo.username,
+      password: useAuthStore().userInfo.password
+    })
+
+    const res = await instance.post(`/users${useAuthStore().userInfo.id}`)
+    
+    .then(res => {
+      console.log('updates:', res.data);
+    })
+    .catch(error => {
+      console.log(error.res)
+    })
+  }
+
+}
 </script>
 
 <template>
@@ -91,10 +110,10 @@ function logout() {
     <div class="profile-form">
       <div class="profile-header">
         <div class="profile-header-username">
-            <h1>{{ useAuthStore().userInfo.username }}</h1>
+            <h1>{{ Cookies.get('username') }}</h1>
             <div class="user-status-medals">
-            <img v-if="useAuthStore().userInfo.isVerified" class="verified" src="../images/verified.png" alt="">
-            <img v-if="useAuthStore().userInfo.isModerator" class="verified" src="../images/moderator.png" alt="">
+              <img v-if="useAuthStore().userInfo.isVerified" class="verified" src="../images/verified.png" alt="">
+              <img v-if="useAuthStore().userInfo.isModerator" class="verified" src="../images/moderator.png" alt="">
             </div>
 
         </div>
@@ -139,7 +158,7 @@ function logout() {
                 >
             <span v-else class="info-value">{{useAuthStore().userInfo.username}}</span>
             
-                <button @click="isEditing.username=!isEditing.username" class="secondary" :disabled="isLoading">
+                <button @click="isEditing.username=!isEditing.username, changeUsernameButton(isEditing.username)" class="secondary" :disabled="isLoading">
                     <img v-if="!isEditing.username" class="edit-button" src="../images/editPencil.png" alt="">
                     <img v-else class="edit-button" src="../images/Done.png" alt="">
                 </button>
@@ -236,9 +255,6 @@ function logout() {
 </template>
 
 <style scoped>
-* {
-  transition: all 0.3s ease;
-}
 
 .profile-header-username {
     display: flex;
@@ -297,6 +313,7 @@ function logout() {
 }
 
 .profile-form {
+  position: relative;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -308,6 +325,7 @@ function logout() {
   background-color: #151515d2;
   max-height: 90vh;
   overflow-y: auto;
+  top: -50px;
 }
 
 .profile-header {
@@ -322,7 +340,6 @@ function logout() {
   font-size: 28px;
   font-weight: 600;
   margin: 0;
-  font-family: 'PPmori-Regular', sans-serif;
 }
 
 .not-authorized {
@@ -407,7 +424,6 @@ function logout() {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'PPmori-Regular', sans-serif;
   flex: 1;
   min-width: 120px;
 }

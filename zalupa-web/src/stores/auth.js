@@ -13,6 +13,7 @@ const sortIsChecked = ref('Все')
 const sortAccepted = ref('Все')
 const sortInput = ref('')
 const videoList = ref([])
+const ideaList = ref([])
 const isListEmpty = ref(false)
 const isOpenSignInComponent = ref(false)
 const isDarkTheme = ref(true)
@@ -150,15 +151,29 @@ async function addNewUser(usernames, emails, passwords) {
   }
 }
 
-export const getVideos = async () => {
+async function getVideos() {
   try {
-    const res = await instance.get('/videos')
-    videoList.value = res.data
+    videoList.value = ''
+    const res = await instance.get('/videos?sort=title:asc')
+    videoList.value = res.data.data
+    console.log('datas updated')
     return videoList
   } catch (error) {
     console.error(error)
   }
 }
+
+  async function reloadPage() {
+    try {
+      const res = await instance.get(`/videos?sort=title:asc`)
+      useAuthStore().videoList = res.data.data
+      if (useAuthStore().videoList.length === 0) {
+        useAuthStore().isListEmpty = true
+      } else {
+        useAuthStore().isListEmpty = false
+      }
+    } catch {}
+  }
 
 function deleteAllCookies() {
   // Получаем все куки
@@ -222,6 +237,8 @@ function getCookie(name) {
     deleteAllCookies,
     isAuthorized,
     userInfo,
-    myFavorites
+    myFavorites,
+    reloadPage,
+    ideaList
   }
 })

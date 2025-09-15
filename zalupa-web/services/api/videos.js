@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import { instance } from '../axios/instance.js'
 import {API} from '../../services/api'
 import Cookies from 'js-cookie'
+import { toast } from 'vue3-hot-toast'
+import { useAuthStore } from '@/stores/auth.js'
  
 const is_checked_status = ref(false)
 const video_id = ref(20)
@@ -53,7 +55,9 @@ export const addVideo = async (link, comment_text) => {
     }
   })
   console.log(response.data)
-  return response.data
+  toast.success(`Видео отправленно на модерацию`)
+  useAuthStore().reloadPage
+  return respon1se.data
 }
 
 export const addNewUser = async ({username, email, password}) => {
@@ -79,8 +83,6 @@ export const changeIsChecked = async (id, status) => {
   await API.videos.refreshVideosModule();
   return response.data
 }
-
-// вытаскиваем ник пользователя из cookie
 
 export const getCookie = (name) => {
   let cookieValue = null

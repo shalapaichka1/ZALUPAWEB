@@ -6,6 +6,7 @@ import VideosView from '../views/VideosView.vue'
 import QAView from '@/views/QAView.vue'
 import ModerationVideoView from '@/views/ModerationVideoView.vue'
 import ProfileComponent from '@/components/ProfileComponent.vue'
+import ModerationIdeasComponent from '@/components/ModerationIdeasComponent.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/moderation/videos',
       name: 'moderation-videos',
       component: ModerationVideoView
+    },
+    {
+      path: '/moderation/ideas',
+      name: 'moderation-ideas',
+      component: ModerationIdeasComponent
     }
   ]
 })

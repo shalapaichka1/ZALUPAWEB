@@ -6,29 +6,29 @@ import AddVideoComponent from '@/components/AddVideoComponent.vue'
 import { instance } from '../../services/axios/instance'
 import { useAuthStore } from '../stores/auth'
 import Cookies from 'js-cookie'
+import toast from 'vue3-hot-toast'
 const channelCache = new Map()
 const videoStatuses = {
   0: 'На модерации',
   1: 'Принято', 
-  2: 'Отклонено'
+  3: 'Отклонено',
+  2: 'Мб смотрим'
 }
 const videoStatusColors = {
   0: '#FFD28F',
   1: '#ACFF9E',
-  2: '#FF695B'
+  3: '#FF695B',
+  2: '#FFD28F'
 }
 
-// Используем хук жизненного цикла
 onMounted(async () => {
   isFavoriteForMe()
   await useAuthStore().getVideos
   
-  // Дополнительная проверка через instance
   try {
-    const data = await instance.get('/videos')
+    const data = await instance.get('/videos?sort=title:asc&filters[agreement_status]=1')
     useAuthStore().videoList = data.data.data
     
-    // Если videoList пустой, заполняем данными из instance
     if (useAuthStore().videoList.length === 0 && data.data.length > 0) {
       useAuthStore().videoList = data.data
     }
@@ -71,21 +71,30 @@ async function handleAuthorClick(videoUrl, authorName, event) {
 }
 
 
-async function isFavoriteForMe(element){
-return useAuthStore().myFavorites.some(el => el.id == element.id)
-  // console.log([...useAuthStore().myFavorites].includes(el))
-  }
+async function isFavoriteForMe(el){
+  const res = await instance.put(`/videos/${el.documentId}`,{
+    data:{
+      users: {
+        connect: [useAuthStore().userInfo.id]
+      }
+    }
+  })
+  .then(res => {
+    console.log('updates:', res.data);
+  })
+  .catch(error => {
+    console.log(error)
+
+  })
+}
 </script>
 
 <template>
   <h1 class="no-videos-found" v-if="useAuthStore().isListEmpty">Видео не найдены</h1>
   <div class="all-video-module">
-    <div class="all-video-element" v-for="(el, index) in useAuthStore().videoList" :key="index">
+    <div class="all-video-element" v-for="(el, documentId) in useAuthStore().videoList" :key="documentId">
       <div class="overlay-info">
         <div class="new-video-notice" v-if="((new Date().getDate() - new Date(el.send_date).getDate()) == 0)"></div>
-        <div :style="{ backgroundColor: videoStatusColors[el.agreement_status] }" class="video-agreement">
-          {{ videoStatuses[el.agreement_status] }}
-        </div>
       </div>
       <img class="preview" :src="getHighQualityThumbnail(el.url_id)" :alt="el.title">
       <div class="overlay">
@@ -97,8 +106,8 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
         <h1 class="el-title">{{ el.title }}</h1>
         <div class="overlay-buttons">
           <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
-          <button @click="toCheckedFunction(el)" class="like-button">
-            <img v-if="isFavoriteForMe(el)" class="like1-image" src="../images/favorite2.png" alt="">
+          <button @click="isFavoriteForMe(el), toast.success('Видео добавленно в избранное')" class="like-button">
+            <img v-if="true" class="like1-image" src="../images/favorite2.png" alt="">
             <img v-else class="like1-image" src="../images/favorite1.png" alt="">
             <span>{{ el.like_count }}</span>
           </button>
@@ -110,36 +119,39 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
   <AddVideoComponent/>
 </template>
 
-<style>
-@font-face {
-  font-family: 'PPmori-Regular';
-  src: url('C:\Users\Admin\Documents\GitHub\ZALUPAWEB\zalupa-web\public\PPMori-Regular.otf') format('opentype');
-}
+<style scoped>
 
 .like1-image {
   position: relative;
-  height: 60px;
-  width: 60px;
-  top: 5px;
+  height: 40px;
+  width: 40px;
 
 }
 .like-button {
-  height: 80px;
-  width: 80px;
-  width: 100px;
+  width: max-content;
   display: flex;
-  flex-direction: column;
-
-  span {
-    position: relative;
-    top: -15px;
-  }
+  justify-content: center;
+  gap: 0;
 }
 .overlay-buttons {
   gap: 15px;
   display: flex;
+  justify-content: center;
   align-items: center;
   width: 100%;
+  height: 3rem;
+}
+.look-botton {
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    gap: 15px;
+    background-color: #6441a1;
+    border-radius: 15px;
+    &:hover {
+        transform: scale(1.01);
+        filter: brightness(70%);
+    }
 }
 .no-videos-found {
   font-size: 24px;
@@ -179,30 +191,6 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
     opacity: 0;
 }
 
-.look-botton {
-    position: relative;
-    background-color: #6441a1;
-    height: max-content;
-    padding: 25px;
-    width: 90%;
-    text-align: center;
-    color: white;
-    font-size: 24px;
-    border-radius: 15px;
-    border: 1px solid #0000002f;
-    transition: all 0.3s ease;
-}
-
-.look-botton:hover {
-    scale: 1.05;
-    background-color: #09090985;
-    border: 1px solid #6441a1;
-}
-
-.look-botton:active {
-    transform: scale(.98)
-}
-
 .all-video-module {
     padding: 15px;
     padding-top: 105px;
@@ -218,7 +206,9 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
 }
 
 .preview {
-    transition: transform 0.3s ease;
+    scale: 1.2;
+    width: 100%;
+    object-fit: contain;
 }
 
 .overlay {
@@ -234,7 +224,6 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
     background-color: #0000002f;
     overflow: hidden;
     height: 100%;
-    transition: all 0.3s ease-out;
     opacity: 0;
     border: 3px solid #ffffff0c;
     justify-content: space-between;
@@ -250,8 +239,7 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
     overflow: hidden;
     border-radius: 15px;
     z-index: 1;
-    transition: transform 0.3s ease;
-    min-width: max-content;
+    width: 100%;
 }
 
 .all-video-element:hover .preview {
@@ -265,22 +253,19 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
 .all-video-element:hover .overlay {
     width: 100%;
     opacity: 1;
-
-    
 }
 
 .overlay > h1 {
     text-wrap: wrap;
     font-weight: 600;
     color: white;
-    font-size: 40px;
+    font-size: 3vh;
     overflow: hidden;
 }
 
 /* Стили для кликабельного имени автора */
 .el-author {
     cursor: pointer;
-    transition: all 0.3s ease;
     position: relative;
 }
 
@@ -295,7 +280,6 @@ return useAuthStore().myFavorites.some(el => el.id == element.id)
     margin-left: 8px;
     font-size: 24px;
     opacity: 0;
-    transition: opacity 0.3s ease;
 }
 
 .el-author:hover::after {

@@ -4,8 +4,8 @@ import { useAuthStore } from '@/stores/auth';
 
 <template>
     <div class="switch-body" @click="useAuthStore().isDarkTheme = !useAuthStore().isDarkTheme">
-        <span>dark theme</span>
         <img class="switch-img" src="../images/Sun.png" alt="Sun">
+        <span>Светлая</span>
     </div>
 </template>
 
@@ -15,26 +15,26 @@ import { useAuthStore } from '@/stores/auth';
     height: 30px;
 }
 .switch-body {
-    font-size: 12px;
+    background-color: #15151570;
+    justify-content: space-between;
+    height: 3rem;
+    width: 3rem;
     display: flex;
     align-items: center;
     padding: 15px;
-    gap: 15px;
     width: 150px;
-    height: 50px;
-    border-radius: 50px;
+    border-radius: 15px;
     border: 1px solid #494949;
     color: white;
     cursor: pointer;
     user-select: none;
-    justify-content: space-between;
 
         &:hover {
         transform: scale(1.05)
     }
 
         &:active {
-        transform: scale(.95);
+        transform: scale(.99);
     }
 }
 

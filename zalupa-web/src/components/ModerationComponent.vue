@@ -31,21 +31,14 @@
 h1 {
     text-align: center;
     justify-content: center;
-    align-items: center;
-    font-family: 'Raleway-SemiBold', sans-serif;
     font-size: 100px;
     color: rgb(0, 0, 0);
 }
 .moderation-mods > a {
-    background-repeat: no-repeat;
-    background-size: cover;
-    transition: 0.3s;
     background-color: rgb(255, 255, 255);
-    padding-top: 500px;
-    width: 80%;
-    height: 800px;
+    width: 40rem;
+    height: 40rem;
     border-radius: 15px;
-
     &:hover {
         transform: scale(1.05);
         box-shadow: 0px 0px 30px 0 rgb(255, 255, 255);

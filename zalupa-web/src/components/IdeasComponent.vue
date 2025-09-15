@@ -3,6 +3,7 @@ import { API } from '../../services/api'
 import { ref, onMounted } from 'vue'
 import { instance } from '../../services/axios/instance'
 import { useAuthStore } from '@/stores/auth'
+import Cookies from 'js-cookie'
 
 const authStore = useAuthStore()
 
@@ -32,8 +33,10 @@ onMounted(async () => {
 
 async function loadIdeas() {
   try {
-    const response = await instance.get('/ideas')
+    const response = await instance.get(`/ideas?filters[sender]=${Cookies.get('username')}`)
     authStore.ideaList = response.data.data
+    console.log('ideas loaded')
+
   } catch (error) {
     console.error('Ошибка загрузки идей:', error)
   }
@@ -57,9 +60,9 @@ async function submitIdea(event) {
         title: ideaForm.value.title,
         description: ideaForm.value.description,
         category: ideaForm.value.category,
-        sender: authStore.user?.username || 'guest',
+        sender: authStore.userInfo.username,
         agreement_status: 0,
-        telegram_link: telegramLink,
+        telegram_link: ideaForm.value.telegramLink,
         send_date: new Date().toISOString()
       }
     })
@@ -194,8 +197,8 @@ function resetForm() {
           <div class="idea-header">
             <h3 class="idea-title">{{ idea.title }}</h3>
             <span class="idea-status" :class="idea.agreement_status">
-              {{ idea.agreement_status === '0' ? 'На рассмотрении' : 
-                 idea.agreement_status === '1' ? 'Принято' : 'Отклонено' }}
+              {{ idea.agreement_status === 0 ? 'На рассмотрении ⌛' : 
+                 idea.agreement_status === 1 ? 'Принято ✅' : 'Отклонено ❌' }}
             </span>
           </div>
 
@@ -384,7 +387,7 @@ text-wrap: wrap;
 .idea-status {
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 600;
 }
 
