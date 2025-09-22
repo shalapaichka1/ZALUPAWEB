@@ -22,9 +22,6 @@ const videoStatusColors = {
 }
 
 onMounted(async () => {
-  isFavoriteForMe()
-  await useAuthStore().getVideos
-  
   try {
     const data = await instance.get('/videos?sort=title:asc&filters[agreement_status]=1')
     useAuthStore().videoList = data.data.data
@@ -286,7 +283,6 @@ async function isFavoriteForMe(el){
     opacity: 1;
 }
 
-/* Индикатор загрузки при клике */
 .el-author.loading {
     opacity: 0.7;
     pointer-events: none;
