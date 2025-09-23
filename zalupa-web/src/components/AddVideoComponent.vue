@@ -136,17 +136,18 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: #00000000;
         display: flex;
         justify-content: center;
         align-items: center;
+        backdrop-filter: blur(5px);
     }
 
     .add-video-module {
-        background-color: #151515;
-        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
-        border-radius: 5px;
-        border: 2px solid #6F6F6F;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        background-color: #15151591;
+        border-radius: 15px;
+        border: 1px solid #fdfdfd15;
         padding: 30px;
         display: flex;
         flex-direction: column;
@@ -179,9 +180,9 @@
     .add-video-module input {
         width: 100%;
         height: 40px;
-        background: #151515;
-        border: 2px solid #6F6F6F;
-        border-radius: 5px;
+        background: #1616167e;
+        border: 1px solid #ffffff16;
+        border-radius: 15px;
         padding: 5px 15px;
         font-size: 14px;
         font-family: 'RaleWay', sans-serif;
@@ -196,8 +197,8 @@
     .add-video-module button {
         width: 100%;
         height: 40px;
-        background: #151515;
-        border-radius: 5px;
+        background: #6441a5;
+        border-radius: 15px;
         font-family: 'Raleway-SemiBold', sans-serif;
         color: white;
         border: 1px solid #6441a5;

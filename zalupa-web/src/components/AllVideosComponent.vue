@@ -1,7 +1,6 @@
 <script setup>
 
-import { API } from '../../services/api'
-import { ref, onMounted, registerRuntimeCompiler } from 'vue' // Добавляем onMounted
+import { ref, onMounted, registerRuntimeCompiler } from 'vue'
 import AddVideoComponent from '@/components/AddVideoComponent.vue'
 import { instance } from '../../services/axios/instance'
 import { useAuthStore } from '../stores/auth'
@@ -22,6 +21,9 @@ const videoStatusColors = {
 }
 
 onMounted(async () => {
+
+  isFavoriteForMe()  
+
   try {
     const data = await instance.get('/videos?sort=title:asc&filters[agreement_status]=1')
     useAuthStore().videoList = data.data.data
@@ -67,23 +69,14 @@ async function handleAuthorClick(videoUrl, authorName, event) {
   }
 }
 
+async function isFavoriteForMe(el) {
+      const isMe = await instance.get(`/videos/${el.documentId}?populate=users`)
 
-async function isFavoriteForMe(el){
-  const res = await instance.put(`/videos/${el.documentId}`,{
-    data:{
-      users: {
-        connect: [useAuthStore().userInfo.id]
-      }
-    }
-  })
-  .then(res => {
-    console.log('updates:', res.data);
-  })
-  .catch(error => {
-    console.log(error)
 
-  })
-}
+    console.log(isMe.data.data.users)
+    useAuthStore().reloadPage
+  }
+  
 </script>
 
 <template>
@@ -103,7 +96,7 @@ async function isFavoriteForMe(el){
         <h1 class="el-title">{{ el.title }}</h1>
         <div class="overlay-buttons">
           <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
-          <button @click="isFavoriteForMe(el), toast.success('Видео добавленно в избранное')" class="like-button">
+          <button @click="isFavoriteForMe(el)" class="like-button">
             <img v-if="true" class="like1-image" src="../images/favorite2.png" alt="">
             <img v-else class="like1-image" src="../images/favorite1.png" alt="">
             <span>{{ el.like_count }}</span>
@@ -190,8 +183,8 @@ async function isFavoriteForMe(el){
 
 .all-video-module {
     padding: 15px;
-    padding-top: 105px;
-    padding-bottom: 105px;
+    padding-top: 95px;
+    padding-bottom: 125px;
     height: 95vh;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -259,8 +252,8 @@ async function isFavoriteForMe(el){
     font-size: 3vh;
     overflow: hidden;
 }
-
 /* Стили для кликабельного имени автора */
+
 .el-author {
     cursor: pointer;
     position: relative;

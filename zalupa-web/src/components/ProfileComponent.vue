@@ -306,7 +306,7 @@ async function changeUsernameButton(isEditing) {
   min-height: 100vh;
   padding: 20px;
   background-color: transparent;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
   position: fixed;
   z-index: 3;
   width: 100%;
@@ -314,7 +314,6 @@ async function changeUsernameButton(isEditing) {
 
 .profile-form {
   position: relative;
-  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;

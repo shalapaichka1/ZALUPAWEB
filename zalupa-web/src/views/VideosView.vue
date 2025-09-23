@@ -95,7 +95,7 @@ import Cookies from 'js-cookie';
     <AllVideosComponent v-else/>
 
   </main>
-  <div class="footer">
+  <div v-if="useAuthStore().isAuthorized" class="footer">
     <button @click="openVideoButtonConditionFunction" class="sendVideoButton">Отправить видео</button>
   </div>
     <AddVideoComponent/>
@@ -103,6 +103,11 @@ import Cookies from 'js-cookie';
 
 <style scoped lang="scss">
 
+.sendVideoButton {
+  background-color: #6441a1;
+  border: 1px solid #6441a1;
+  font-size: 18px;
+}
 
 .navigation {
   display: flex;
@@ -110,16 +115,16 @@ import Cookies from 'js-cookie';
 }
 
 .footer {
-  bottom: -.5rem;
+  bottom: 0;
   left: 0;
   z-index: 1;
   width: 100%;
-  position: absolute;
+  position: fixed;
   display:flex;
-  flex-direction: row-reverse;
+  justify-content: center;
   padding: 15px;
   background-color:  #15151559;
-  backdrop-filter: blur(70px);
+  backdrop-filter: blur(20px);
 }
 
 .video-view-header {
@@ -127,7 +132,7 @@ import Cookies from 'js-cookie';
   z-index: 2;
   background-color: #15151559;
   box-shadow: 0px 15px 15px 0px #00000073;
-  backdrop-filter: blur(70px);
+  backdrop-filter: blur(20px);
   padding: 15px;
   width: 100%;
 

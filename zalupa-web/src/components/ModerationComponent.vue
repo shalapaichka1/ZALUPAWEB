@@ -18,19 +18,16 @@
 </script>
 <template>
     <div class="moderation-mods">
-        <a class="moderation-mods-elements" v-for="mod in modsInfo" :href="mod.link">
-            <img class="moderation-mods-image" :src="mod.image" alt="">
-            <h1 class="moderation-mods-name">{{mod.name}}</h1>
-            <h1 class="moderation-mods-count">{{mod.count}}</h1>
-        </a>
+        <router-link class="header-navigation-items" to="/moderation/ideas">Идеи</router-link>
+        <router-link class="header-navigation-items" to="/moderation/videos">Видео</router-link>
+
     </div>
 </template>
 
 <style scoped>
 
-h1 {
+.header-navigation-items {
     text-align: center;
-    justify-content: center;
     font-size: 100px;
     color: rgb(0, 0, 0);
 }

@@ -165,7 +165,7 @@ async function getVideos() {
 
   async function reloadPage() {
     try {
-      const res = await instance.get(`/videos?sort=title:asc`)
+      const res = await instance.get(`/videos?agreement_status=1&sort=title:asc`)
       useAuthStore().videoList = res.data.data
       if (useAuthStore().videoList.length === 0) {
         useAuthStore().isListEmpty = true
@@ -239,6 +239,7 @@ function getCookie(name) {
     userInfo,
     myFavorites,
     reloadPage,
-    ideaList
+    ideaList,
+    videoList
   }
 })

@@ -2,8 +2,6 @@
 import { useAuthStore } from '../stores/auth'
 import { onMounted, ref } from 'vue'
 import { Toaster } from 'vue3-hot-toast'
-import DarkThemeButtonComponent from './DarkThemeButtonComponent.vue'
-import LightThemeButtonComponent from './LightThemeButtonComponent.vue'
 import ProfileComponent from './ProfileComponent.vue'
 
 import Cookies from 'js-cookie'
@@ -27,20 +25,20 @@ function openProfile(){
 <template>
     <div class="header">
         <div class="header-logo">
-            <a href="/videos" class="header-logo-title">ZALUPAWEB</a>
+            <router-link to="/videos" class="header-logo-title">ZALUPAWEB</router-link>
             <img class="stitch" src="../images/stitch.svg" alt="">
         </div>
 
         <div class="header-navigation">
-                <a class="header-navigation-items" href="/ideas">Идеи</a>
-                <a class="header-navigation-items" href="/videos">Видео</a> 
-                <a class="header-navigation-items" href="/q&a">Q&A</a>
+            <router-link class="header-navigation-items" to="/ideas">Идеи</router-link>
+            <router-link class="header-navigation-items" to="/videos">Видео</router-link> 
+            <router-link class="header-navigation-items" to="/q&a">Q&A</router-link>
         </div>
 
         <div class="header-buttons">
             <div v-if="Cookies.get('isModeration')" class="header-moderation-div">
                 <img class="banana" src="../images/banana.svg" alt="">
-                <a href="/moderation" class="moderation-button">Режим модератора</a>
+                <router-link to="/moderation" class="moderation-button">Режим модератора</router-link>
             </div>
 
             <div class="header-user-buttons">

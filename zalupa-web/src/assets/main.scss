@@ -46,11 +46,11 @@ button, select, input, .look-video-button{
     border: 1px solid #494949;
 
     &:hover{
-        scale: 1.02;
+        scale: 1.01;
         filter: brightness(70%);
     }
     &:active {
-        scale: .99;
+        scale: .999;
     }
 }
 

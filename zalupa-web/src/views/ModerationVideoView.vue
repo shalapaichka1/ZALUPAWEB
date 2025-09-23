@@ -361,6 +361,7 @@ async function changeCategorySelect(event, el) {
     gap: 15px;
     color: #151515;
     background-color: rgb(255, 255, 255);
+
     &:hover {
         transform: scale(1.01);
     }
@@ -376,6 +377,8 @@ async function changeCategorySelect(event, el) {
 }
 .video-element-actions-img {
     width: 25px;
+
+
 }
 .not-is-checked-button {
     filter: grayscale(100%);
@@ -389,6 +392,10 @@ async function changeCategorySelect(event, el) {
 
     &:hover {
         filter: brightness(50%);
+    }
+
+    &:active{
+        box-shadow: 0px 0px 10px 0px #ffffff;
     }
 }
 .video-element-actions {
@@ -566,7 +573,7 @@ async function changeCategorySelect(event, el) {
     justify-content: space-between;
     align-items: center;
     background-color: #1515152f;
-    backdrop-filter: blur(70px);
+    backdrop-filter: blur(20px);
     box-shadow: 0px 15px 15px 0px rgba(0, 0, 0, 0.4509803922);
 }
 </style>
