@@ -317,10 +317,6 @@ async function changeCategorySelect(event, el) {
 
 <style>
 
-.title-text {
-    height: 100px;
-    overflow-y: auto;
-}
 .el-author {
     margin-bottom: 1rem;
 }
@@ -342,7 +338,6 @@ async function changeCategorySelect(event, el) {
     opacity: 1;
 }
 
-/* Индикатор загрузки при клике */
 .el-author.loading {
     opacity: 0.7;
     pointer-events: none;
@@ -442,8 +437,8 @@ async function changeCategorySelect(event, el) {
     color: white;
 }
 .video-element-title {
-    height: max-1;
-    font-size: 150%;
+    max-height: 8vh;
+    font-size: 1vw;
     flex-wrap: wrap;
     overflow-y: auto;
 }
@@ -495,7 +490,7 @@ async function changeCategorySelect(event, el) {
 
 .moderation-video-main-area-content {
     width: 100%;
-    height: 54vw;
+    height: 91vh;
     display: grid;
     grid-template-columns: 49% 49%;
     justify-content: center;
@@ -503,7 +498,8 @@ async function changeCategorySelect(event, el) {
     place-items: center;
     overflow: auto;
     scroll-behavior: smooth;
-    padding-top: 5rem;
+    padding-bottom: 1vh;
+    padding-top: 8vh;
 }
 
 .moderation-video-list-element {

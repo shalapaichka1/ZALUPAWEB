@@ -38,7 +38,9 @@
             showError('Неверная ссылка на YouTube видео')
             return
         }
-
+        if (url.value.includes('&')) {
+            url.value = url.value.split('&')[0]
+        }
         isLoading.value = true;
         errorMessage.value = '';
 
@@ -52,13 +54,12 @@
 
         await API.videos.addVideo(url.value, comment_text.value);
         removeComponent()
-        await API.videos.refreshVideoList();
+        useAuthStore().reloadPage
                 
-        } catch (error) {
-            console.error('Ошибка при добавлении видео:', error);
-            showError('Произошла ошибка при добавлении видео');
+        } catch {
         } finally {
         isLoading.value = false;
+        
         }
     }
 

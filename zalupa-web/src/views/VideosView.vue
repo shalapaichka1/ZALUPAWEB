@@ -20,7 +20,7 @@ import Cookies from 'js-cookie';
     useAuthStore().videoList = res.data.data
   }
   async function switchVideoModulesFunction(){
-    const res = await instance.get(`/videos/?filters[sender]=${Cookies.get('username')}& filters[agreement_status]=1`)
+    const res = await instance.get(`/videos/?filters[sender]=${Cookies.get('username')}&filters[agreement_status]=1`)
     useAuthStore().videoList = res.data.data
   }
   async function onChangeCategorySelect(event) {

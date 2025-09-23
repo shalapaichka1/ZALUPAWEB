@@ -35,7 +35,7 @@ export const getUsers = async () => {
 
 export const addVideo = async (link, comment_text) => {
 
-  const send_date_res = new Date().toISOString().split('T')[0]; // 2024-01-19
+  const send_date_res = new Date().toISOString().split('T')[0];
 
   const getTitle = await axios.get(
     `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${link.split('=')[1]}&key=AIzaSyAd_rFuqgRiTnoUv0SzJfgVGdOauNwHYAw`
@@ -57,7 +57,7 @@ export const addVideo = async (link, comment_text) => {
   console.log(response.data)
   toast.success(`Видео отправленно на модерацию`)
   useAuthStore().reloadPage
-  return respon1se.data
+  return response.data
 }
 
 export const addNewUser = async ({username, email, password}) => {

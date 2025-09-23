@@ -1,18 +1,22 @@
 <script setup>
-
-import { ref, onMounted, registerRuntimeCompiler } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import AddVideoComponent from '@/components/AddVideoComponent.vue'
 import { instance } from '../../services/axios/instance'
 import { useAuthStore } from '../stores/auth'
 import Cookies from 'js-cookie'
-import toast from 'vue3-hot-toast'
+import toast, { Toaster } from 'vue3-hot-toast'
+
+const authStore = useAuthStore()
 const channelCache = new Map()
+const userFavorites = ref({}) // Храним статус лайков для каждого видео
+
 const videoStatuses = {
   0: 'На модерации',
   1: 'Принято', 
   3: 'Отклонено',
   2: 'Мб смотрим'
 }
+
 const videoStatusColors = {
   0: '#FFD28F',
   1: '#ACFF9E',
@@ -21,25 +25,84 @@ const videoStatusColors = {
 }
 
 onMounted(async () => {
-
-  isFavoriteForMe()  
-
   try {
     const data = await instance.get('/videos?sort=title:asc&filters[agreement_status]=1')
-    useAuthStore().videoList = data.data.data
+    authStore.videoList = data.data.data
     
-    if (useAuthStore().videoList.length === 0 && data.data.length > 0) {
-      useAuthStore().videoList = data.data
+    if (authStore.videoList.length === 0 && data.data.length > 0) {
+      authStore.videoList = data.data
     }
+    
+    // Загружаем статусы лайков для всех видео
+    await loadAllFavoritesStatus()
   } catch (error) {
     console.error('Ошибка при загрузке через instance:', error)
   }
-}
-)
+})
 
-  function getHighQualityThumbnail(url_id) {
-    return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`
+// Загружаем статусы лайков для всех видео
+async function loadAllFavoritesStatus() {
+  if (!authStore.videoList.length) return
+  
+  try {
+    const promises = authStore.videoList.map(async (video) => {
+      const response = await instance.get(`/videos/${video.documentId}?populate=users`)
+      const users = response.data.data.users || []
+      const isLiked = users.some(user => user.username === authStore.userInfo.username)
+      userFavorites.value[video.documentId] = isLiked
+    })
+    
+    await Promise.all(promises)
+  } catch (error) {
+    console.error('Ошибка при загрузке статусов лайков:', error)
   }
+}
+
+function isLiked(videoId) {
+  return userFavorites.value[videoId] || false
+}
+
+async function toggleFavorite(video) {
+  try {
+    const response = await instance.get(`/videos/${video.documentId}?populate=users`)
+    const currentUsers = response.data.data.users || []
+    
+    const isCurrentlyLiked = currentUsers.some(user => user.username === authStore.userInfo.username)
+    
+    if (isCurrentlyLiked) {
+      // Убираем лайк
+      await instance.put(`/videos/${video.documentId}`, {
+        data: {
+          users: {
+            disconnect: [authStore.userInfo.id]
+          }
+        }
+      })
+      userFavorites.value[video.documentId] = false
+      video.like_count = Math.max(0, (video.like_count || 1) - 1)
+      toast.success()
+    } else {
+      // Добавляем лайк
+      await instance.put(`/videos/${video.documentId}`, {
+        data: {
+          users: {
+            connect: [authStore.userInfo.id]
+          }
+        }
+      })
+      userFavorites.value[video.documentId] = true
+      video.like_count = (video.like_count || 0) + 1
+    }
+    
+  } catch (error) {
+    console.error('Ошибка при обновлении лайка:', error)
+    toast.error('Ошибка при обновлении лайка')
+  }
+}
+
+function getHighQualityThumbnail(url_id) {
+  return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`
+}
 
 function getChannelUrl(videoUrl, authorName) {
   if (channelCache.has(videoUrl)) {
@@ -56,27 +119,18 @@ function getChannelUrl(videoUrl, authorName) {
   }
 }
 
-async function handleAuthorClick(videoUrl, authorName, event) {
+function handleAuthorClick(videoUrl, authorName, event) {
   event.preventDefault()
   event.stopPropagation()
   
   try {
-    const channelUrl = await getChannelUrl(videoUrl, authorName)
+    const channelUrl = getChannelUrl(videoUrl, authorName)
     window.open(channelUrl, '_blank')
   } catch (error) {
     console.error('Ошибка при открытии канала:', error)
     window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank')
   }
 }
-
-async function isFavoriteForMe(el) {
-      const isMe = await instance.get(`/videos/${el.documentId}?populate=users`)
-
-
-    console.log(isMe.data.data.users)
-    useAuthStore().reloadPage
-  }
-  
 </script>
 
 <template>
@@ -96,8 +150,8 @@ async function isFavoriteForMe(el) {
         <h1 class="el-title">{{ el.title }}</h1>
         <div class="overlay-buttons">
           <a target="_blank" class="look-botton" :href="el.url">Смотреть</a>
-          <button @click="isFavoriteForMe(el)" class="like-button">
-            <img v-if="true" class="like1-image" src="../images/favorite2.png" alt="">
+          <button @click="toggleFavorite(el)" class="like-button">
+            <img v-if="isLiked(el.documentId)" class="like1-image" src="../images/favorite2.png" alt="">
             <img v-else class="like1-image" src="../images/favorite1.png" alt="">
             <span>{{ el.like_count }}</span>
           </button>
@@ -184,7 +238,7 @@ async function isFavoriteForMe(el) {
 .all-video-module {
     padding: 15px;
     padding-top: 95px;
-    padding-bottom: 125px;
+    padding-bottom: 14vh;
     height: 95vh;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;

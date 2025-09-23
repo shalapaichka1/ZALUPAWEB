@@ -225,6 +225,8 @@ function resetForm() {
 }
 
 .ideas-container {
+  overflow-y: auto;
+  height: 100vh;
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -238,7 +240,7 @@ function resetForm() {
 
 /* Форма */
 .idea-form {
-  background: #151515;
+  background: #15151560;
   padding: 30px;
   border-radius: 15px;
   border: 2px solid #6F6F6F;
@@ -286,7 +288,6 @@ function resetForm() {
   margin-top: 5px;
 }
 
-/* Кнопки */
 .form-actions {
   display: flex;
   gap: 15px;
@@ -330,7 +331,6 @@ function resetForm() {
   cursor: not-allowed;
 }
 
-/* Статус */
 .status-message {
   padding: 12px;
   border-radius: 8px;
@@ -348,7 +348,6 @@ function resetForm() {
   color: #fff;
 }
 
-/* Список идей */
 .ideas-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
