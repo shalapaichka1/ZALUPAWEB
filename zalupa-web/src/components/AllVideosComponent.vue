@@ -70,7 +70,6 @@ async function toggleFavorite(video) {
     const isCurrentlyLiked = currentUsers.some(user => user.username === authStore.userInfo.username)
     
     if (isCurrentlyLiked) {
-      // Убираем лайк
       await instance.put(`/videos/${video.documentId}`, {
         data: {
           users: {
@@ -79,10 +78,13 @@ async function toggleFavorite(video) {
         }
       })
       userFavorites.value[video.documentId] = false
-      video.like_count = Math.max(0, (video.like_count || 1) - 1)
-      toast.success()
+            const like = await instance.put(`/videos/${video.documentId}`, {
+        data: {
+          like_count: video.like_count - 1
+        }
+      })
+      video.like_count = Math.max(video.like_count - 1)
     } else {
-      // Добавляем лайк
       await instance.put(`/videos/${video.documentId}`, {
         data: {
           users: {
@@ -91,9 +93,13 @@ async function toggleFavorite(video) {
         }
       })
       userFavorites.value[video.documentId] = true
-      video.like_count = (video.like_count || 0) + 1
+      const like = await instance.put(`/videos/${video.documentId}`, {
+        data: {
+          like_count: video.like_count + 1
+        }
+      })
+      video.like_count = Math.max(video.like_count + 1)
     }
-    
   } catch (error) {
     console.error('Ошибка при обновлении лайка:', error)
     toast.error('Ошибка при обновлении лайка')
@@ -176,6 +182,10 @@ function handleAuthorClick(videoUrl, authorName, event) {
   display: flex;
   justify-content: center;
   gap: 0;
+
+  &:active {
+    box-shadow: 1px 1px 10px 1px #ffffff;
+  }
 }
 .overlay-buttons {
   gap: 15px;

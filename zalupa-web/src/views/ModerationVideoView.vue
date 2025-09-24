@@ -2,8 +2,9 @@
     import {ref} from 'vue'
     import { useAuthStore } from '@/stores/auth';
     import { instance } from '../../services/axios/instance';
-import toast from 'vue3-hot-toast';
+    import toast from 'vue3-hot-toast';
 
+    const elementList = ref([])
     const statusesList = {
         0: 'moderation',
         1: ['accepted', 'Смотрим', '#ACFF9E'],
@@ -25,7 +26,7 @@ import toast from 'vue3-hot-toast';
 
     async function refreshVideoList() {
         try {
-            const data = await instance.get('/videos?sort=title:asc')
+            const data = await instance.get('/videos?sort=like_count:asc')
             useAuthStore().videoList = data.data.data
         } catch (error) {
             console.error('Ошибка при обновлении списка видео:', error);
@@ -52,11 +53,11 @@ import toast from 'vue3-hot-toast';
     useAuthStore().sortCategory = event.target.value
     try {
         if (useAuthStore().sortCategory == "firstTab") {
-            const res = await instance.get(`/videos/?filters[isFirstTab]=true&sort=title:asc`)
+            const res = await instance.get(`/videos/?filters[isFirstTab]=true&sort=like_count:asc`)
             useAuthStore().videoList = res.data.data
         }
         else {
-            const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}`)
+            const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}&sort=like_count`)
             useAuthStore().videoList = res.data.data
         }
 
@@ -69,13 +70,12 @@ import toast from 'vue3-hot-toast';
     useAuthStore().sortAccepted = event.target.value
     try {
         if (useAuthStore().sortAccepted == 'Все') {
-            const res = await instance.get(`/videos?sort=title:asc`)
+            const res = await instance.get(`/videos?sort=like_count:asc`)
             useAuthStore().videoList = res.data.data
         }
         else {
-            const res = await instance.get(`/videos/?filters[agreement_status]=${useAuthStore().sortAccepted}`)
+            const res = await instance.get(`/videos/?filters[agreement_status]=${useAuthStore().sortAccepted}&sort=like_count:asc`)
             useAuthStore().videoList = res.data.data
-
         }
 
     } catch{
@@ -86,7 +86,7 @@ import toast from 'vue3-hot-toast';
     useAuthStore().sortIsChecked = event.target.value
 
     try {
-        const res = await instance.get(`/videos/?filters[is_checked]=${event.target.value}`)    
+        const res = await instance.get(`/videos/?filters[is_checked]=${event.target.value}&sort=like_count:asc`)    
         useAuthStore().videoList = res.data.data
 
         if (useAuthStore().sortIsChecked = event.target.value === 'Все') {
@@ -103,7 +103,7 @@ import toast from 'vue3-hot-toast';
     useAuthStore().sortIsChecked = 'Все'
     useAuthStore().sortInput = ''
     try {
-      const res = await instance.get(`/videos?sort=title:asc`)
+      const res = await instance.get(`/videos?sort=like_count:asc`)
       useAuthStore().videoList = res.data.data
     } catch{
         
@@ -213,6 +213,30 @@ async function changeCategorySelect(event, el) {
     throw error;
   }
 }
+
+function selectElement(element) {
+    var el = document.getElementById(element.id)
+    el.classList.toggle("selected-value")
+    if (!elementList.value.includes(element.documentId)) {
+        elementList.value.push(element.documentId)
+    }
+    else {
+        elementList.value.pop(element.documentId)
+    }
+    console.log(elementList.value)
+}
+
+async function deleteElements() {
+    
+    elementList.value.forEach(async (element) => {
+        const res = await instance.delete(`/videos/${element}`)
+        elementList.value.pop(element)
+        const res1 = await instance.get(`/videos?sort=title:asc`)
+        useAuthStore().videoList = res1.data.data
+    });
+    toast.success("Выбранные видно удалены")
+    
+}
     mounted()
 </script>
 
@@ -221,6 +245,12 @@ async function changeCategorySelect(event, el) {
         <div class="moderation-video-main-area-header">
             <h1 class="moderation-video-title">Модерация видео</h1>
             <div class="moderation-video-main-area-header-search-area">
+                <div v-if="elementList.length" class="delete-video-button">
+                    <button @click="deleteElements()">
+                    <h1>{{ elementList.length }}</h1>
+                    <img src="../images/trash.svg" alt="">
+                    </button>
+                </div>
                 <input v-model='useAuthStore().sortInput' @input="videoSearch" class="moderation-video-main-area-header-search" type="text" name="" id="" placeholder="Поиск">
                 <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
                     <option value="firstTab">В первую очередь ⭐</option>
@@ -254,7 +284,7 @@ async function changeCategorySelect(event, el) {
         
         <div class="moderation-video-main-area-content">
             <h1 class="no-videos-found" v-if="!useAuthStore().videoList.length">Видео не найдено</h1>
-            <div :v-model="videoList" v-for="(i, documentId) in useAuthStore().videoList" :key="documentId" :class="'moderation-video-list-element ' + i.id" >
+            <div :v-model="videoList" v-for="(i, documentId) in useAuthStore().videoList" :key="documentId" :class="'moderation-video-list-element ' + i.id" :id="i.id">
                 <div class="video-element-info">
                     <div>
                     <h1  @click="handleAuthorClick(i.url, i.author, $event)" class="video-element-title el-author">
@@ -267,7 +297,7 @@ async function changeCategorySelect(event, el) {
                     <div class="moderation-video-main-area-content-element-info-header">
                     </div>
                     <div>
-                        <div class="video_element_info_section_2">
+                    <div class="video_element_info_section_2">
                     <select @change="(event) => changeCategorySelect(event, i)" class="video_element_select" name="video_category" id="">
                             <option :value="i.category">{{i.category}}</option>
                             <option value="Трукрайм">Трукрайм</option>
@@ -305,7 +335,7 @@ async function changeCategorySelect(event, el) {
                     </div>
                 </div>
                 <div class="video-element-preview">
-                    <img class="preview" loading="lazy" decoding="async"
+                    <img @click="selectElement(i)" class="preview" loading="lazy" decoding="async"
                         :src=getHighQualityThumbnail(i.url_id)
                         :alt="i.title"
                     />
@@ -317,9 +347,27 @@ async function changeCategorySelect(event, el) {
 
 <style>
 
+.delete-video-button {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    img {
+        width: 30px;
+    }
+}
+.selected-value {
+    border: 1px solid white !important ;
+    transform: scale(1.01);
+    box-shadow: 1px 1px 5px 1px #ffffff63;
+    &:hover {
+        transform: scale(1.08);
+    }
+}
 .el-author {
     margin-bottom: 1rem;
 }
+
 .el-author:hover {
     width: max-content;
     cursor: pointer;
@@ -361,8 +409,11 @@ async function changeCategorySelect(event, el) {
         transform: scale(1.01);
     }
 }
+
 .selected-status-button {
     filter: brightness(50%);
+    border: none;
+    box-shadow: 0px 0px 10px 0px rgba(252, 252, 252, 0.349);
 }
 
 .status-buttons {
@@ -370,11 +421,11 @@ async function changeCategorySelect(event, el) {
         filter: brightness(70%);
     }
 }
+
 .video-element-actions-img {
     width: 25px;
-
-
 }
+
 .not-is-checked-button {
     filter: grayscale(100%);
 }
@@ -382,23 +433,25 @@ async function changeCategorySelect(event, el) {
 .not-is-first-tab-button {
     filter: grayscale(100%);
 }
+
 .video-element-actions-buttons {
     width: 100%;
 
     &:hover {
         filter: brightness(50%);
     }
-
     &:active{
         box-shadow: 0px 0px 10px 0px #ffffff;
     }
 }
+
 .video-element-actions {
     display: flex;
     justify-content: space-between;
     gap: 15px;
     width: 100%;
 }
+
 .no-videos-found {
     position: absolute;
     top: 50%;
@@ -416,6 +469,7 @@ async function changeCategorySelect(event, el) {
     justify-content: center;
     align-items: center;
 }
+
 .clearButton{
   background-color: #ff6464;
   width: 3rem;
@@ -436,12 +490,14 @@ async function changeCategorySelect(event, el) {
     font-size: 2rem;
     color: white;
 }
+
 .video-element-title {
     max-height: 8vh;
     font-size: 1vw;
     flex-wrap: wrap;
     overflow-y: auto;
 }
+
 .video-element-link {
     word-wrap: break-word;
     max-width: 600px;
@@ -510,12 +566,18 @@ async function changeCategorySelect(event, el) {
     border-radius: 15px;
     border: 1px solid #505050;
     padding: 15px;
+    cursor: pointer;
 
     &:hover {
         transform: scale(1.01);
         border:1px solid #8f8f8f ;
     }
+
+    &:active {
+        transform: scale(.99);
+    }
 }
+
 .grid-buttons {
     display: flex;
     align-items: center;
@@ -530,10 +592,11 @@ async function changeCategorySelect(event, el) {
 
     img {
         width: 30px;
+
         &:hover {
-        transform: scale(1.1);
-        filter: brightness(70%);
-    }
+            transform: scale(1.1);
+            filter: brightness(70%);
+            }
 
     &:active {
         transform: scale(.95);
