@@ -9,8 +9,9 @@ import { Toaster } from 'vue3-hot-toast'
 <template>
   <HeaderComponent/>
   <SignInComponent v-if="useAuthStore().isOpenSignInComponent"/>
-  <RouterView   
-    position="top-center"
-    :reverseOrder="false"/>
-  <Toaster/>
+  <RouterView/>
+  <Toaster
+  position="top-left"
+  :reverseOrder="false"
+  />
 </template>

@@ -76,7 +76,7 @@ function logout() {
     useAuthStore().isProfileOpen = false
     useAuthStore().isModeration = false
     useAuthStore().userInfo.isModerator = false
-    useAuthStore().getVideos()
+    useAuthStore().reloadPage()
   } catch (error) {
     console.log(error)
     errorMessage.value = 'Ошибка при выходе'

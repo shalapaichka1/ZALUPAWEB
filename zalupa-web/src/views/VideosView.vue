@@ -71,16 +71,20 @@ import Cookies from 'js-cookie';
       <button @click="switchVideoModulesFunctionFavorites">Избранное</button>
     </div>
     <div class="navigation">
+      <div>
+        <h1 class="input-select-title">Статус</h1>
+        <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
+          <option value="Все">Все</option>
+          <option value="Веселое">Веселое</option>
+          <option value="Трукрайм">Трукрайм</option>
+          <option value="Разоблачения">Разоблачения</option>
+          <option value="Политика">Политика</option>
+          <option value="Страшное">Страшное</option>
+          <option value="Клипы">Клипы</option>
+          <option value="Другое">Другое</option>
+        </select>
+      </div>
 
-    <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
-      <option value="Все">Все</option>
-      <option value="Веселое">Веселое</option>
-      <option value="Трукрайм">Трукрайм</option>
-      <option value="Разоблачения">Разоблачения</option>
-      <option value="Политика">Политика</option>
-      <option value="Страшное">Страшное</option>
-      <option value="Другое">Другое</option>
-    </select>
 
     <button class="clearButton" @click="clearFilters">
       <img src="../images/clearButton.png" alt="">

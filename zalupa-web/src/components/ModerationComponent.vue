@@ -1,54 +1,70 @@
 <script setup>
-    const modsInfo = [
-                {
-                    id: 1,
-                    name: 'Идеи',
-                    count: 11,
-                    image: "..src/images/tips.svg",
-                    link: '/moderation/ideas'
-                },
-                {
-                    id: 2,
-                    name: 'Видео',
-                    count: 34,
-                    image: 'images/video.svg',
-                    link: '/moderation/videos'
-                }
-            ]
-</script>
-<template>
-    <div class="moderation-mods">
-        <router-link class="header-navigation-items" to="/moderation/ideas">Идеи</router-link>
-        <router-link class="header-navigation-items" to="/moderation/videos">Видео</router-link>
+import { instance } from '../../services/axios/instance'
+import IdeasLogo from '../../src/images/IdeasRepec.svg'
+import VideoLogo from '../../src/images/Video.svg'
 
-    </div>
+const vCount = instance.get('/videos')
+const modsInfo = [
+  {
+    id: 1,
+    name: 'Идеи', 
+    count: 11,
+    image: IdeasLogo,
+    link: '/moderation/ideas'
+  },
+  {
+    id: 2,
+    name: 'Видео',
+    count: 1,
+    image: VideoLogo,
+    link: '/moderation/videos'
+  }
+]
+
+</script>
+
+<template>
+  <div class="moderation-body">
+    <router-link
+      v-for="element in modsInfo"
+      :key="element.id"
+      class="moderation-mods"
+      :to="element.link"
+    >
+      <component class="img-logo" :is="element.image" />
+        <label for="">{{ element.count }}</label>
+    </router-link>
+  </div>
 </template>
 
 <style scoped>
+.moderation-body {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+}
 
-.header-navigation-items {
-    text-align: center;
-    font-size: 100px;
-    color: rgb(0, 0, 0);
-}
-.moderation-mods > a {
-    background-color: rgb(255, 255, 255);
-    width: 40rem;
-    height: 40rem;
-    border-radius: 15px;
-    &:hover {
-        transform: scale(1.05);
-        box-shadow: 0px 0px 30px 0 rgb(255, 255, 255);
-    }
-}
 .moderation-mods {
-    margin: 50px;
-    display: flex;
-    column-gap: 50px;
-    row-gap: 30px;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
-    border-radius: 15px;
+  display: flex;
+  border-radius: 15px;
+  background-color: #ff000000;
+  width: 40vh;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff06;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 0px 15px 0px #fff;
+  }
+}
+
+.img-logo {
+  width: 20rem;
+  height: 20rem;
+  color: aliceblue;
 }
 </style>

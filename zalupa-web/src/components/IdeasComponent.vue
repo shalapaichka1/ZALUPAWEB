@@ -7,7 +7,6 @@ import Cookies from 'js-cookie'
 
 const authStore = useAuthStore()
 
-// Данные формы
 const ideaForm = ref({
   title: '',
   description: '',
@@ -26,7 +25,6 @@ const categories = ref([
 const isSubmitting = ref(false)
 const submitStatus = ref('')
 
-// Загрузка идей при монтировании
 onMounted(async () => {
   await loadIdeas()
 })
@@ -42,7 +40,6 @@ async function loadIdeas() {
   }
 }
 
-// Отправка идеи
 async function submitIdea(event) {
   event.preventDefault()
   
@@ -71,7 +68,6 @@ async function submitIdea(event) {
       submitStatus.value = 'success'
       ideaForm.value = { title: '', description: '', category: '', telegramLink: ''}
       
-      // Обновляем список идей
       await loadIdeas()
       
       setTimeout(() => {
@@ -86,7 +82,6 @@ async function submitIdea(event) {
   }
 }
 
-// Сброс формы
 function resetForm() {
   ideaForm.value = { title: '', description: '', category: '', telegramLink: ''}
   submitStatus.value = ''
@@ -95,7 +90,6 @@ function resetForm() {
 
 <template>
   <div class="ideas-container">
-    <!-- Форма отправки идеи -->
     <div class="idea-form-section">
       <h1 class="section-title">Предложить идею</h1>
       
@@ -137,7 +131,6 @@ function resetForm() {
           </div>
         </div>
 
-        <!-- Статус отправки -->
         <div v-if="submitStatus" class="status-message" :class="submitStatus">
           <span v-if="submitStatus === 'success'">✅ Идея успешно отправлена!</span>
           <span v-else-if="submitStatus === 'error'">❌ Ошибка при отправке</span>
@@ -179,10 +172,9 @@ function resetForm() {
         </div>
       </form>
     </div>
-
-    <!-- Список отправленных идей -->
-    <div class="ideas-list-section">
       <h1 class="section-title">Мои идеи</h1>
+    <div class="ideas-list-section">
+
       
       <div v-if="authStore.ideaList && authStore.ideaList.length === 0" class="empty-state">
         <p>Вы еще не отправляли идеи</p>
@@ -216,6 +208,10 @@ function resetForm() {
 
 <style scoped>
 
+.ideas-list-section {
+  height: 35vh;
+  overflow-y: auto;
+}
 .clear-send-buttons {
     display: flex;
     gap: 15px;
@@ -225,25 +221,24 @@ function resetForm() {
 }
 
 .ideas-container {
-  overflow-y: auto;
-  height: 100vh;
+  overflow-y: none;
   padding: 20px;
-  max-width: 1200px;
+  width: 40%;
   margin: 0 auto;
+  height: 100vh;
 }
 
 .section-title {
-  font-size: 28px;
+  font-size: 1.5rem;
   color: white;
   margin-bottom: 30px;
 }
 
-/* Форма */
 .idea-form {
   background: #15151560;
-  padding: 30px;
+  padding: 1rem;
   border-radius: 15px;
-  border: 2px solid #6F6F6F;
+  border: 1px solid #ffffff28;
   margin-bottom: 40px;
 }
 
@@ -263,8 +258,6 @@ function resetForm() {
 .form-group select {
   width: 100%;
   padding: 12px 15px;
-  background: #2C2C2C;
-  border: 2px solid #6F6F6F;
   border-radius: 8px;
   color: white;
   font-size: 14px;
@@ -358,10 +351,10 @@ function resetForm() {
   background: #151515;
   padding: 20px;
   border-radius: 12px;
-  border: 2px solid #6F6F6F;
+  border: 1px solid #ffffff27;
   transition: transform 0.3s ease;
   height: max-content;
-text-wrap: wrap;
+  text-wrap: wrap;
 }
 
 .idea-card:hover {
@@ -378,7 +371,7 @@ text-wrap: wrap;
 
 .idea-title {
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   margin: 0;
   flex: 1;
 }
@@ -424,30 +417,5 @@ text-wrap: wrap;
   text-align: center;
   padding: 40px;
   color: #666;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-  
-  .ideas-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .idea-header {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .submit-btn,
-  .cancel-btn {
-    width: 100%;
-  }
 }
 </style>

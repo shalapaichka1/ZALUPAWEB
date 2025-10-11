@@ -1,187 +1,188 @@
 <script setup>
-    import {ref} from 'vue'
-    import { useAuthStore } from '@/stores/auth';
-    import { instance } from '../../services/axios/instance';
-    import toast from 'vue3-hot-toast';
+import {ref, computed, watch} from 'vue'
+import { useAuthStore } from '@/stores/auth';
+import { instance } from '../../services/axios/instance';
+import toast from 'vue3-hot-toast';
 
-    const elementList = ref([])
-    const statusesList = {
-        0: 'moderation',
-        1: ['accepted', 'Смотрим', '#ACFF9E'],
-        2: ['mb', 'Мб смотрим', '#FFD28F'],
-        3: ['rejected', 'Хуйня', '#FF695B'],
+const elementList = ref([])
+const statusesList = {
+    0: 'moderation',
+    1: ['accepted', 'Смотрим', '#ACFF9E'],
+    2: ['mb', 'Мб смотрим', '#FFD28F'],
+    3: ['rejected', 'Хуйня', '#FF695B'],
+}
+
+const categories = ref([
+    "Веселое",
+    "Трукрайм",
+    "Страшное",
+    "Политика",
+    "Другое"
+])
+
+const searchQuery = ref('')
+
+const buildFilterUrl = computed(() => {
+    const filters = []
+    const authStore = useAuthStore()
+    
+    if (authStore.sortCategory && authStore.sortCategory !== 'firstTab' && authStore.sortCategory !== 'Все') {
+        filters.push(`filters[category][$eq]=${authStore.sortCategory}`)
     }
-
-    const categories = ref([
-        "Веселое",
-        "Трукрайм",
-        "Страшное",
-        "Политика",
-        "Другое"
-    ])
-    const videoList = ref([])
-    function mounted() {
-        refreshVideoList();
+    
+    if (authStore.sortAccepted && authStore.sortAccepted !== 'Все') {
+        filters.push(`filters[agreement_status][$eq]=${authStore.sortAccepted}`)
     }
-
-    async function refreshVideoList() {
-        try {
-            const data = await instance.get('/videos?sort=like_count:asc')
-            useAuthStore().videoList = data.data.data
-        } catch (error) {
-            console.error('Ошибка при обновлении списка видео:', error);
-        }
+    
+    if (authStore.sortIsChecked && authStore.sortIsChecked !== 'Все') {
+        filters.push(`filters[is_checked][$eq]=${authStore.sortIsChecked}`)
     }
-
-    async function videoSearch(e) {
-        const res = await instance.get(`/videos?filters[title][$containsi]=${e.target.value}`)
-        useAuthStore().videoList = res.data.data
-        console.log(e.target.value)
-        if (useAuthStore().videoList.length === 0) {
-            useAuthStore().isListEmpty = true
-        }
-        else {
-            useAuthStore().isListEmpty = false
-        }
+    
+    if (authStore.sortCategory === 'firstTab') {
+        filters.push(`filters[isFirstTab][$eq]=true`)
     }
-
-    function getHighQualityThumbnail(url_id) {
-        return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
+    
+    if (searchQuery.value) {
+        filters.push(`filters[title][$containsi]=${searchQuery.value}`)
     }
+    
+    const filterString = filters.length > 0 ? `?${filters.join('&')}&sort=like_count:asc` : '?sort=like_count:asc'
+    return `/videos${filterString}`
+})
 
-    async function onChangeCategorySelect(event) {
+const videoList = ref([])
+
+function mounted() {
+    refreshVideoList();
+}
+
+async function refreshVideoList() {
+    try {
+        const url = buildFilterUrl.value
+        console.log('Fetching URL:', url)
+        const data = await instance.get(url)
+        useAuthStore().videoList = data.data.data
+    } catch (error) {
+        console.error('Ошибка при обновлении списка видео:', error);
+    }
+}
+
+async function videoSearch(e) {
+    searchQuery.value = e.target.value
+    await refreshVideoList()
+    
+    if (useAuthStore().videoList.length === 0) {
+        useAuthStore().isListEmpty = true
+    } else {
+        useAuthStore().isListEmpty = false
+    }
+}
+
+watch([
+    () => useAuthStore().sortCategory,
+    () => useAuthStore().sortAccepted,
+    () => useAuthStore().sortIsChecked
+], async () => {
+    await refreshVideoList()
+})
+
+function getHighQualityThumbnail(url_id) {
+    return `https://img.youtube.com/vi/${url_id}/hqdefault.jpg`;
+}
+
+async function onChangeCategorySelect(event) {
     useAuthStore().sortCategory = event.target.value
-    try {
-        if (useAuthStore().sortCategory == "firstTab") {
-            const res = await instance.get(`/videos/?filters[isFirstTab]=true&sort=like_count:asc`)
-            useAuthStore().videoList = res.data.data
-        }
-        else {
-            const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}&sort=like_count`)
-            useAuthStore().videoList = res.data.data
-        }
+}
 
-    } catch(error){
-        console.error(error)
-    }
-  }
-
-  async function onChangeAcceptedSelect(event) {
+async function onChangeAcceptedSelect(event) {
     useAuthStore().sortAccepted = event.target.value
-    try {
-        if (useAuthStore().sortAccepted == 'Все') {
-            const res = await instance.get(`/videos?sort=like_count:asc`)
-            useAuthStore().videoList = res.data.data
-        }
-        else {
-            const res = await instance.get(`/videos/?filters[agreement_status]=${useAuthStore().sortAccepted}&sort=like_count:asc`)
-            useAuthStore().videoList = res.data.data
-        }
+}
 
-    } catch{
-        
-    }
-  }
-  async function onChangeIsCheckedSelect(event) {
+async function onChangeIsCheckedSelect(event) {
     useAuthStore().sortIsChecked = event.target.value
+}
 
-    try {
-        const res = await instance.get(`/videos/?filters[is_checked]=${event.target.value}&sort=like_count:asc`)    
-        useAuthStore().videoList = res.data.data
-
-        if (useAuthStore().sortIsChecked = event.target.value === 'Все') {
-            const res = await instance.get('/videos')
-            useAuthStore().videoList = res.data.data
-        }
-    } catch(error){
-        console.error(Error)
-    }
-  }
-  async function clearFilters() {
-    useAuthStore().sortCategory = 'Веселое'
-    useAuthStore().sortAccepted = 'Все'
-    useAuthStore().sortIsChecked = 'Все'
+async function clearFilters() {
+    useAuthStore().sortCategory = ''
+    useAuthStore().sortAccepted = ''
+    useAuthStore().sortIsChecked = ''
+    searchQuery.value = ''
     useAuthStore().sortInput = ''
-    try {
-      const res = await instance.get(`/videos?sort=like_count:asc`)
-      useAuthStore().videoList = res.data.data
-    } catch{
-        
+    
+    const searchInput = document.querySelector('.moderation-video-main-area-header-search')
+    if (searchInput) {
+        searchInput.value = ''
     }
-  }
+}
 
 async function toCheckedFunction(el, isCheck){
     console.log(el.documentId)
-  const res = await instance.put(`videos/${el.documentId}`,{
-    data:{
-      is_checked: !isCheck
-    }
-  })
-  .then(res => {
-    useAuthStore().reloadPage()
-    if(isCheck){
-    toast.success('Видео не просмотрено')
-    }
-    else {
-        toast.success('Видео просмотрено')
-    }
-    console.log('updates:', res.data);
-  })
-  .catch(error => {
-    console.log(error.res)
-  })
-
+    const res = await instance.put(`videos/${el.documentId}`,{
+        data:{
+            is_checked: !isCheck
+        }
+    })
+    .then(res => {
+        refreshVideoList()
+        if(isCheck){
+            toast.success('Видео не просмотрено')
+        } else {
+            toast.success('Видео просмотрено')
+        }
+        console.log('updates:', res.data);
+    })
+    .catch(error => {
+        console.log(error.res)
+    })
 }
 
 async function toFirstTabFunction(el, isFT){
-  const res = await instance.put(`videos/${el.documentId}`,{
-    data:{
-      isFirstTab: !isFT
-    }
-  })
-  .then(res => {
-    console.log('updates:', res.data);
-    useAuthStore().reloadPage()
-    if (isFT) {
-        toast.success("Видео удалено из первой очереди")
-    }
-    else {
-        toast.success("Видео добавленно в первую очередь")
-    }
-  })
-  .catch(error => {
-    console.log(error.res)
-  })
-
+    const res = await instance.put(`videos/${el.documentId}`,{
+        data:{
+            isFirstTab: !isFT
+        }
+    })
+    .then(res => {
+        console.log('updates:', res.data);
+        refreshVideoList()
+        if (isFT) {
+            toast.success("Видео удалено из первой очереди")
+        } else {
+            toast.success("Видео добавленно в первую очередь")
+        }
+    })
+    .catch(error => {
+        console.log(error.res)
+    })
 }
 
 async function changeAgreementStatusFunction(el, status){
-
     const res = await instance.put(`videos/${el.documentId}`,{
         data:{
-        agreement_status: status.toString()
-    }
-  })
-  .then(res => {
-    console.log('updates:', res.data);
-  })
-  .catch(error => {
-    console.error(error)
-  })
-  
+            agreement_status: status.toString()
+        }
+    })
+    .then(res => {
+        console.log('updates:', res.data);
+        refreshVideoList()
+        toast.success(`Видео добавлено в '${statusesList[status][1]}'`)
+    })
+    .catch(error => {
+        console.error(error)
+    })
 }
 
 async function handleAuthorClick(videoUrl, authorName, event) {
-  event.preventDefault()
-  event.stopPropagation()
-  
-  try {
-    const channelUrl = await getChannelUrl(videoUrl, authorName)
-    window.open(channelUrl, '_blank')
-  } catch (error) {
-    console.error('Ошибка при открытии канала:', error)
-    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank')
-  }
+    event.preventDefault()
+    event.stopPropagation()
+    
+    try {
+        const channelUrl = await getChannelUrl(videoUrl, authorName)
+        window.open(channelUrl, '_blank')
+    } catch (error) {
+        console.error('Ошибка при открытии канала:', error)
+        window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(authorName)}`, '_blank')
+    }
 }
 
 async function toCheckedFunctionBRFF(a, b) {
@@ -189,29 +190,29 @@ async function toCheckedFunctionBRFF(a, b) {
         await toCheckedFunction(a, b)
     }
 }
+
 async function changeCategorySelect(event, el) {
-  try {
-    const categoryy = event.target.value;
-    const updateData = {
-      data: {
-        category: categoryy
-      }
-    };
+    try {
+        const categoryy = event.target.value;
+        const updateData = {
+            data: {
+                category: categoryy
+            }
+        };
 
-    const response = await instance.put(`videos/${el.documentId}`, updateData);
-    
-    if (response.data) {
-        console.log('Успешно обновлено:', response.data);
-        useAuthStore().reloadPage
-        toast.success(`Категория изменена: ${categoryy}`)
-
-      return response.data;
+        const response = await instance.put(`videos/${el.documentId}`, updateData);
+        
+        if (response.data) {
+            console.log('Успешно обновлено:', response.data);
+            refreshVideoList()
+            toast.success(`Категория изменена: ${categoryy}`)
+            return response.data;
+        }
+        
+    } catch (error) {
+        console.error('Ошибка:', error.response?.data || error.message);
+        throw error;
     }
-    
-  } catch (error) {
-    console.error('Ошибка:', error.response?.data || error.message);
-    throw error;
-  }
 }
 
 function selectElement(element) {
@@ -219,31 +220,31 @@ function selectElement(element) {
     el.classList.toggle("selected-value")
     if (!elementList.value.includes(element.documentId)) {
         elementList.value.push(element.documentId)
-    }
-    else {
-        elementList.value.pop(element.documentId)
+    } else {
+        const index = elementList.value.indexOf(element.documentId)
+        if (index > -1) {
+            elementList.value.splice(index, 1)
+        }
     }
     console.log(elementList.value)
 }
 
 async function deleteElements() {
-    
-    elementList.value.forEach(async (element) => {
-        const res = await instance.delete(`/videos/${element}`)
-        elementList.value.pop(element)
-        const res1 = await instance.get(`/videos?sort=title:asc`)
-        useAuthStore().videoList = res1.data.data
-    });
-    toast.success("Выбранные видно удалены")
-    
+    for (const element of elementList.value) {
+        await instance.delete(`/videos/${element}`)
+    }
+    elementList.value = []
+    await refreshVideoList()
+    toast.success("Выбранные видео удалены")
 }
-    mounted()
+
+mounted()
 </script>
 
 <template>
-    <div class="moderation-video-main-area">
+    <div v-if="useAuthStore().userInfo.isModerator" class="moderation-video-main-area">
         <div class="moderation-video-main-area-header">
-            <h1 class="moderation-video-title">Модерация видео</h1>
+            <h1 class="moderation-video-title">Модерация видео / {{ useAuthStore().videoList.length }}</h1>
             <div class="moderation-video-main-area-header-search-area">
                 <div v-if="elementList.length" class="delete-video-button">
                     <button @click="deleteElements()">
@@ -251,92 +252,104 @@ async function deleteElements() {
                     <img src="../images/trash.svg" alt="">
                     </button>
                 </div>
-                <input v-model='useAuthStore().sortInput' @input="videoSearch" class="moderation-video-main-area-header-search" type="text" name="" id="" placeholder="Поиск">
-                <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
-                    <option value="firstTab">В первую очередь ⭐</option>
-                    <option value="Веселое">Веселое</option>
-                    <option value="Трукрайм">Трукрайм</option>
-                    <option value="Разоблачения">Разоблачения</option>
-                    <option value="Политика">Политика</option>
-                    <option value="Страшное">Страшное</option>
-                    <option value="Другое">Другое</option>
-                </select>
-                <select v-model="useAuthStore().sortAccepted" @change="onChangeAcceptedSelect" class="moderation-video-main-area-header-filter-select" name="video_status_category">
-                    <option value="Все" selected>Все</option>
-                    <option value="0">На модерации</option>
-                    <option value="1">Смотрим</option>
-                    <option value="2">Мб смотрим</option>
-                    <option value="3">Хуйня</option>
-                </select>
+                <div>
+                    <span class="input-select-title">Поиск</span>
+                    <input :value="searchQuery" @input="videoSearch" class="moderation-video-main-area-header-search" type="text" placeholder="Поиск">
+                </div>
+                <div>
+                    <span class="input-select-title">Категория</span>
+                        <select v-model="useAuthStore().sortCategory" @change="onChangeCategorySelect" class="moderation-video-main-area-header-search-select" name="video_category">
+                        <option value="firstTab">В первую очередь ⭐</option>
+                        <option value="Веселое">Веселое</option>
+                        <option value="Трукрайм">Трукрайм</option>
+                        <option value="Разоблачения">Разоблачения</option>
+                        <option value="Политика">Политика</option>
+                        <option value="Страшное">Страшное</option>
+                        <option value="Другое">Другое</option>
+                        <option value="Клипы">Клипы</option>
+                    </select>
+                </div>
 
-                <select v-model="useAuthStore().sortIsChecked" @change="onChangeIsCheckedSelect" class="moderation-video-main-area-header-search-select" name="" id="">
-                    <option selected>Все</option>
-                    <option value="false">Не просмотрено</option>
-                    <option value="true">Просмотрено</option>
-                </select>
+                <div>
+                    <span class="input-select-title">Статус</span>
+                    <select v-model="useAuthStore().sortAccepted" @change="onChangeAcceptedSelect" class="moderation-video-main-area-header-filter-select" name="video_status_category">
+                        <option value="Все" selected>Все</option>
+                        <option value="0">На модерации</option>
+                        <option value="1">Смотрим</option>
+                        <option value="2">Мб смотрим</option>
+                        <option value="3">Хуйня</option>
+                    </select>
+                </div>
+
+                <div>
+                    <span class="input-select-title">Просмотренно</span>
+                    <select v-model="useAuthStore().sortIsChecked" @change="onChangeIsCheckedSelect" class="moderation-video-main-area-header-search-select" name="" id="">
+                        <option value="Все" selected>Все</option>
+                        <option value="false">Не просмотрено</option>
+                        <option value="true">Просмотрено</option>
+                    </select>
+                </div>
 
                 <button class="clearButton" @click="clearFilters">
                     <img src="../images/clearButton.png" alt="">
                 </button>
             </div>
-
         </div>
         
         <div class="moderation-video-main-area-content">
-            <h1 class="no-videos-found" v-if="!useAuthStore().videoList.length">Видео не найдено</h1>
-            <div :v-model="videoList" v-for="(i, documentId) in useAuthStore().videoList" :key="documentId" :class="'moderation-video-list-element ' + i.id" :id="i.id">
+            <div v-for="(i, documentId) in useAuthStore().videoList" :key="documentId" :class="'moderation-video-list-element ' + i.id" :id="i.id">
                 <div class="video-element-info">
                     <div>
-                    <h1  @click="handleAuthorClick(i.url, i.author, $event)" class="video-element-title el-author">
-                        {{ i.author }}
-                    </h1>
-                    <h1 class="video-element-title title-text">{{ i.title }}</h1>
-
+                        <h1 @click="handleAuthorClick(i.url, i.author, $event)" class="video-element-title el-author">
+                            {{ i.author }}
+                        </h1>
+                        <h1 class="video-element-title title-text">{{ i.title }}</h1>
                     </div>
 
                     <div class="moderation-video-main-area-content-element-info-header">
                     </div>
                     <div>
-                    <div class="video_element_info_section_2">
-                    <select @change="(event) => changeCategorySelect(event, i)" class="video_element_select" name="video_category" id="">
-                            <option :value="i.category">{{i.category}}</option>
-                            <option value="Трукрайм">Трукрайм</option>
-                            <option value="Веселое">Веселое</option>
-                            <option value="Разоблачения">Разоблачения</option>
-                            <option value="Политика">Политика</option>
-                            <option value="Страшное">Страшное</option>
-                            <option value="Другое">Другое</option>
-                        </select>
-                        <div class="video-element-actions">
-                            <button  v-if="i.is_checked" class="video-element-actions-buttons is-checked-button"  @click="toCheckedFunction(i, i.is_checked)">
-                                <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
-                            </button>
-                            <button v-else class="video-element-actions-buttons not-is-checked-button" @click="toCheckedFunction(i, i.is_checked)">
-                                <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
-                            </button>
+                        <div class="video_element_info_section_2">
+                            <select @change="(event) => changeCategorySelect(event, i)" class="video_element_select" name="video_category">
+                                <option :value="i.category">{{i.category}}</option>
+                                <option value="Трукрайм">Трукрайм</option>
+                                <option value="Веселое">Веселое</option>
+                                <option value="Разоблачения">Разоблачения</option>
+                                <option value="Политика">Политика</option>
+                                <option value="Страшное">Страшное</option>
+                                <option value="Другое">Другое</option>
+                                <option value="Клипы">Клипы</option>
+                            </select>
+                            <div class="video-element-actions">
+                                <button v-if="i.is_checked" class="video-element-actions-buttons is-checked-button" @click="toCheckedFunction(i, i.is_checked)">
+                                    <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
+                                </button>
+                                <button v-else class="video-element-actions-buttons not-is-checked-button" @click="toCheckedFunction(i, i.is_checked)">
+                                    <img class="video-element-actions-img" src="../images/isChecked.png" alt="">
+                                </button>
 
-                            <button v-if="i.isFirstTab" class="video-element-actions-buttons is-first-tab-button" @click="toFirstTabFunction(i, i.isFirstTab)">
-                                <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
-                            </button>
+                                <button v-if="i.isFirstTab" class="video-element-actions-buttons is-first-tab-button" @click="toFirstTabFunction(i, i.isFirstTab)">
+                                    <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
+                                </button>
 
-                            <button v-else class="video-element-actions-buttons not-is-first-tab-button" @click="toFirstTabFunction(i, i.isFirstTab)">
-                                <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
+                                <button v-else class="video-element-actions-buttons not-is-first-tab-button" @click="toFirstTabFunction(i, i.isFirstTab)">
+                                    <img class="video-element-actions-img" src="../images/isFirstTab.png" alt="">
+                                </button>
+                            </div>
+                        </div>
+                        <div class="video-element-buttons">
+                            <button v-for="button in 3" @click="changeAgreementStatusFunction(i, button)" :class="button == i.agreement_status? 'selected-status-button': '' + statusesList[button][0] + '-button'" :style="{backgroundColor: statusesList[button][2], color: '#151515', border: 'none', fontSize: '16px', fontWeight: '600'}">
+                                {{ statusesList[button][1] }}
                             </button>
                         </div>
-                    </div>
-                    <div class="video-element-buttons">
-                        <button v-for="button in 3" @click="changeAgreementStatusFunction(i, button), useAuthStore().reloadPage(), toast.success(`Видео добавлено в '${statusesList[button][1]}'`)" :class="button == i.agreement_status? 'selected-status-button': '' + statusesList[button][0] + '-button'" :style="{backgroundColor: statusesList[button][2], color: '#151515', border: none, fontSize: '16px', fontWeight: '600'}">
-                            {{ statusesList[button][1] }}
-                        </button>
-                    </div>
                         <a @click="toCheckedFunctionBRFF(i, i.is_checked)" class="look-video-button" :href="i.url" target="_blank">
-                        Смотреть
+                            Смотреть
                         </a>
                     </div>
                 </div>
                 <div class="video-element-preview">
                     <img @click="selectElement(i)" class="preview" loading="lazy" decoding="async"
-                        :src=getHighQualityThumbnail(i.url_id)
+                        :src="getHighQualityThumbnail(i.url_id)"
                         :alt="i.title"
                     />
                 </div>
@@ -345,8 +358,14 @@ async function deleteElements() {
     </div>
 </template>
 
-<style>
 
+<style>
+.input-select-title {
+    position: absolute;
+    top: -8px;
+    font-weight: 400;
+    font-size:small
+}
 .delete-video-button {
     display: flex;
     align-items: center;
@@ -554,8 +573,8 @@ async function deleteElements() {
     place-items: center;
     overflow: auto;
     scroll-behavior: smooth;
-    padding-bottom: 1vh;
-    padding-top: 8vh;
+    padding-bottom: 1vw;
+    padding-top: 5vw;
 }
 
 .moderation-video-list-element {
@@ -571,10 +590,6 @@ async function deleteElements() {
     &:hover {
         transform: scale(1.01);
         border:1px solid #8f8f8f ;
-    }
-
-    &:active {
-        transform: scale(.99);
     }
 }
 
@@ -597,7 +612,6 @@ async function deleteElements() {
             transform: scale(1.1);
             filter: brightness(70%);
             }
-
     &:active {
         transform: scale(.95);
         }
@@ -621,7 +635,7 @@ async function deleteElements() {
 }
 
 .moderation-video-main-area-header {
-    padding: .5rem;  
+    padding: .8rem;  
     padding-right: 0;
     padding-left: 15px;
     z-index: 1;

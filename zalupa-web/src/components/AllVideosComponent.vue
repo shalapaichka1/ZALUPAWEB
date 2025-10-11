@@ -8,7 +8,7 @@ import toast, { Toaster } from 'vue3-hot-toast'
 
 const authStore = useAuthStore()
 const channelCache = new Map()
-const userFavorites = ref({}) // Храним статус лайков для каждого видео
+const userFavorites = ref({})
 
 const videoStatuses = {
   0: 'На модерации',
@@ -26,21 +26,19 @@ const videoStatusColors = {
 
 onMounted(async () => {
   try {
-    const data = await instance.get('/videos?sort=title:asc&filters[agreement_status]=1')
+    const data = await instance.get('/videos?filters[agreement_status]=1')
     authStore.videoList = data.data.data
     
     if (authStore.videoList.length === 0 && data.data.length > 0) {
       authStore.videoList = data.data
     }
     
-    // Загружаем статусы лайков для всех видео
     await loadAllFavoritesStatus()
   } catch (error) {
     console.error('Ошибка при загрузке через instance:', error)
   }
 })
 
-// Загружаем статусы лайков для всех видео
 async function loadAllFavoritesStatus() {
   if (!authStore.videoList.length) return
   
@@ -48,7 +46,7 @@ async function loadAllFavoritesStatus() {
     const promises = authStore.videoList.map(async (video) => {
       const response = await instance.get(`/videos/${video.documentId}?populate=users`)
       const users = response.data.data.users || []
-      const isLiked = users.some(user => user.username === authStore.userInfo.username)
+      const isLiked = users.some(user => user.username === authStore.userInfo.username || 0)
       userFavorites.value[video.documentId] = isLiked
     })
     
@@ -162,7 +160,6 @@ function handleAuthorClick(videoUrl, authorName, event) {
             <span>{{ el.like_count }}</span>
           </button>
         </div>
-
       </div>
     </div>
   </div>
@@ -251,12 +248,14 @@ function handleAuthorClick(videoUrl, authorName, event) {
     padding-bottom: 14vh;
     height: 95vh;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
     justify-content: center;
     gap: 15px;
+    row-gap: 15px;
     place-items: center;
     overflow: auto;
     scroll-behavior: smooth;
+    grid-template: max-content;
 }
 
 .preview {

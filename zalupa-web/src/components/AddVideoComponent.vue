@@ -2,6 +2,8 @@
     import { API } from '../../services/api'
     import { ref } from 'vue'
     import { useAuthStore } from '@/stores/auth'
+import { instance } from '../../services/axios/instance'
+import toast from 'vue3-hot-toast'
     const isLoading = ref(false)
     const errorMessage = ref('')
     const url = ref('')
@@ -13,49 +15,27 @@
         url.value = ''
         comment_text.value = ''
     }
-    async function checkVideoExists(link) {
+    async function checkVideoExists(url) {
+        const url_id = url.value.split('=')[1]
         try {
-            const response = await API.videos.checkVideoExists(link);
-        return response.exists;
-            } catch (error) {
-        console.error('Ошибка при проверке видео:', error);
-        return false;
+            const res = await instance.get('/videos').data.data
+            res.forEach(element => {
+                console.log(element.url_id == url_id)
+                return element.url_id == url_id
+            });
+        }
+        catch{
+            
         }
     }
 
     async function notification() {
-        if (url.value === '') {
-            showError('Вы не ввели ссылку на видео!')
-            return
-        }
-            
-        if (url.value.includes('vkvideo')) {
-            showError('Сасеб')
-            return
-        }
-            
-        if (!url.value.includes('www.youtube.com/watch?')) {
-            showError('Неверная ссылка на YouTube видео')
-            return
-        }
-        if (url.value.includes('&')) {
-            url.value = url.value.split('&')[0]
-        }
+
         isLoading.value = true;
         errorMessage.value = '';
 
         try {
-            const videoExists = await checkVideoExists(url.value);
-                
-            if (videoExists) {
-                showError('Такое видео уже есть в базе!');
-                return;
-            }
-
-        await API.videos.addVideo(url.value, comment_text.value);
-        removeComponent()
-        useAuthStore().reloadPage
-                
+            useAuthStore().parseYouTubeUrl(url)
         } catch {
         } finally {
         isLoading.value = false;
@@ -102,7 +82,7 @@
                 placeholder="Ссылка на видео"
             >
             <input 
-                v-model="comment_text" 
+                v-model="comment_text"
                 class="add-video-comment-input" 
                 type="text" 
                 placeholder="Комментарий (не более 50 символов, не обязательно)"

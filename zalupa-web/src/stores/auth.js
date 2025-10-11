@@ -1,16 +1,16 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import axios from 'axios'
 import { instance } from '../../services/axios/instance'
-import Cookies from 'js-cookie'
+
 const APIKEY = 'AIzaSyAkAVqh68vBS5M9gDkOGfvZCgc730jpynE'
+const agreementIdea = ref('')
 const isChatOpen = ref(false)
 const isModeration = ref(false)
 const isSignIn = ref(false)
 const isOpenCloseAddVideoModule = ref(false)
-const sortCategory = ref('Веселое')
-const sortIsChecked = ref('Все')
-const sortAccepted = ref('Все')
+const sortCategory = ref('Все')
+const sortIsChecked = ref('')
+const sortAccepted = ref('')
 const sortInput = ref('')
 const videoList = ref([])
 const ideaList = ref([])
@@ -20,6 +20,7 @@ const isDarkTheme = ref(true)
 const isProfileOpen = ref(false)
 const isAuthorized = ref(document.cookie.includes('username='))
 const myFavorites = ref([])
+
 const userInfo = ref({
   username: '',
   password: '',
@@ -165,7 +166,7 @@ async function getVideos() {
 
   async function reloadPage() {
     try {
-      const res = await instance.get(`/videos?agreement_status=1&sort=title:asc`)
+      const res = await instance.get(`/videos?filters[agreement_status]=1&sort=title:asc`)
       useAuthStore().videoList = res.data.data
       if (useAuthStore().videoList.length === 0) {
         useAuthStore().isListEmpty = true
@@ -198,12 +199,49 @@ function deleteAllCookies() {
   console.log('Все куки были удалены')
   return true
 }
+export function parseYouTubeUrl(url) {
+  if (typeof url !== 'string') return null
 
+  try {
+    const parsedUrl = new URL(url.trim())
+    const hostname = parsedUrl.hostname.replace('www.', '')
+    const pathname = parsedUrl.pathname
+
+    let videoId = null
+
+    if (hostname === 'youtube.com' || hostname === 'm.youtube.com') {
+      if (pathname === '/watch') {
+        const params = new URLSearchParams(parsedUrl.search)
+        videoId = params.get('v')
+      } else if (pathname.startsWith('/embed/')) {
+        videoId = pathname.split('/embed/')[1]
+      } else if (pathname.startsWith('/v/')) {
+        videoId = pathname.split('/v/')[1]
+      } else if (pathname.startsWith('/shorts/')) {
+        videoId = pathname.split('/shorts/')[1]
+      }
+    } else if (hostname === 'youtu.be') {
+      videoId = pathname.slice(1)
+    }
+
+    if (videoId && /^[\w-]{11}$/.test(videoId)) {
+      console.log(videoId)
+      return videoId
+    }
+
+    return null
+  } catch (err) {
+    console.log(err)
+    return null
+  }
+}
 export const useAuthStore = defineStore('auth', () => {
   const signInOrUp = () => {
     isSignIn.value = !isSignIn.value
     return isSignIn.value
 }
+
+
 
 function getCookie(name) {
   let cookieValue = null
@@ -240,6 +278,8 @@ function getCookie(name) {
     myFavorites,
     reloadPage,
     ideaList,
-    videoList
+    videoList,
+    parseYouTubeUrl,
+    agreementIdea
   }
 })

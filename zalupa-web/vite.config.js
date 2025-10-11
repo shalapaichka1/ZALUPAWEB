@@ -2,6 +2,8 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import svgLoader from 'vite-svg-loader'
+
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
@@ -11,12 +13,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     server: {
-      hmr: {overlay: true},
+      hmr: { overlay: true },
       match: {
-        usePolling:true
+        usePolling: true
       }
     },
-    plugins: [vue(), vueJsx()],
+    plugins: [vue(), vueJsx(), svgLoader()],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))

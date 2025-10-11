@@ -12,7 +12,6 @@ const isLoginForm = ref(true)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
-const letters = 'йцукенгшщзхъфывапролджэячсмитьбюё'
 
 const loginData = ref({
   email: '',
@@ -26,9 +25,63 @@ const registerData = ref({
   confirmPassword: ''
 })
 
+function validateEnglishOnly(value) {
+  return /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/.test(value)
+}
+
+function handleInput(event, field, formType) {
+  const value = event.target.value
+  
+  if (!validateEnglishOnly(value)) {
+    event.target.value = value.replace(/[^A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g, '')
+    
+    if (formType === 'login') {
+      loginData.value[field] = event.target.value
+    } else {
+      registerData.value[field] = event.target.value
+    }
+    
+    errorMessage.value = 'Разрешены только английские буквы, цифры и специальные символы'
+    setTimeout(() => {
+      errorMessage.value = ''
+    }, 2000)
+  } else {
+    if (formType === 'login') {
+      loginData.value[field] = value
+    } else {
+      registerData.value[field] = value
+    }
+  }
+}
+
+function validateEmailInput(event, formType) {
+  const value = event.target.value
+  const filteredValue = value.replace(/[^A-Za-z0-9@._-]/g, '')
+  
+  if (value !== filteredValue) {
+    event.target.value = filteredValue
+    errorMessage.value = 'Email может содержать только английские буквы, цифры, @, точку, дефис и подчеркивание'
+    setTimeout(() => {
+      errorMessage.value = ''
+    }, 2000)
+  }
+  
+  if (formType === 'login') {
+    loginData.value.email = filteredValue
+  } else {
+    registerData.value.email = filteredValue
+  }
+}
+
 async function handleLogin() {
   if (!loginData.value.email || !loginData.value.password) {
     errorMessage.value = 'Заполните все поля'
+    return
+  }
+
+  if (!validateEnglishOnly(loginData.value.email.replace(/[@._-]/g, '')) || 
+      !validateEnglishOnly(loginData.value.password)) {
+    errorMessage.value = 'Разрешены только английские символы'
     return
   }
 
@@ -42,7 +95,6 @@ async function handleLogin() {
         password: loginData.value.password,
       })
       .then(response => {
-        // Handle success.
         console.log('Well done!');
         console.log('User profile', response.data.user);
         console.log('User token', response.data.jwt);
@@ -57,7 +109,6 @@ async function handleLogin() {
         toast.success(`Добро пожаловать, ${Cookies.get('username')}`)
       })
       .catch(error => {
-        // Handle error.
         console.log('An error occurred:', error.response);
 
         const {status, data} = error.response
@@ -78,6 +129,13 @@ async function handleRegister() {
   if (!registerData.value.username || !registerData.value.email || 
       !registerData.value.password || !registerData.value.confirmPassword) {
     errorMessage.value = 'Заполните все поля'
+    return
+  }
+
+  if (!validateEnglishOnly(registerData.value.username) || 
+      !validateEnglishOnly(registerData.value.email.replace(/[@._-]/g, '')) ||
+      !validateEnglishOnly(registerData.value.password)) {
+    errorMessage.value = 'Разрешены только английские символы'
     return
   }
 
@@ -102,7 +160,6 @@ async function handleRegister() {
     password: registerData.value.password,
   })
   .then(response => {
-    // Handle success.
     console.log('Well done!');
     console.log('User profile', response.data.user);
     console.log('User token', response.data.jwt);
@@ -115,10 +172,8 @@ async function handleRegister() {
     toast.success(`Вы успешно зарегистрировались`)
   })
   .catch(error => {
-    // Handle error.
     console.log('An error occurred:', error.response);
   });
-    // После успешной регистрации переключаемся на логин
     isLoginForm.value = true
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Ошибка регистрации'
@@ -126,13 +181,7 @@ async function handleRegister() {
     isLoading.value = false
   }
 }
-function validateUsername(){
-  letters.split('').forEach(element => {
-    if(registerData.value.username.includes(element)) {
-      errorMessage.value = 'Можно только латинские буквы'
-    }
-  });
-}
+
 function toggleForm() {
   isLoginForm.value = !isLoginForm.value
   errorMessage.value = ''
@@ -150,7 +199,6 @@ function toggleForm() {
         <img @click="useAuthStore().isOpenSignInComponent = !useAuthStore().isOpenSignInComponent" class="close-button" src="../images/close-button.png" alt="">
       </div>
       <form @submit.prevent="isLoginForm ? handleLogin() : handleRegister()" class="auth-content">
-        <!-- Форма логина -->
         <div v-if="isLoginForm" class="form-group">
           <input
             v-model="loginData.email"
@@ -158,7 +206,7 @@ function toggleForm() {
             class="auth-input"
             :disabled="isLoading"
             autocomplete="email"
-
+            @input="(e) => validateEmailInput(e, 'login')"
           >
           <input
             v-model="loginData.password"
@@ -167,10 +215,10 @@ function toggleForm() {
             class="auth-input"
             :disabled="isLoading"
             autocomplete="current-password"
+            @input="(e) => handleInput(e, 'password', 'login')"
           >
         </div>
 
-        <!-- Форма регистрации -->
         <div v-else class="form-group">
           <input
             v-model="registerData.username"
@@ -179,7 +227,7 @@ function toggleForm() {
             class="auth-input"
             :disabled="isLoading"
             autocomplete="username"
-            @input="validateUsername()"
+            @input="(e) => handleInput(e, 'username', 'register')"
           >
           <input
             v-model="registerData.email"
@@ -188,6 +236,7 @@ function toggleForm() {
             class="auth-input"
             :disabled="isLoading"
             autocomplete="email"
+            @input="(e) => validateEmailInput(e, 'register')"
           >
           <input
             v-model="registerData.password"
@@ -196,6 +245,7 @@ function toggleForm() {
             class="auth-input"
             :disabled="isLoading"
             autocomplete="new-password"
+            @input="(e) => handleInput(e, 'password', 'register')"
           >
           <input
             v-model="registerData.confirmPassword"
@@ -204,6 +254,7 @@ function toggleForm() {
             class="auth-input"
             :disabled="isLoading"
             autocomplete="new-password"
+            @input="(e) => handleInput(e, 'confirmPassword', 'register')"
           >
         </div>
 
