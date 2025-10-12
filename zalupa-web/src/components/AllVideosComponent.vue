@@ -293,6 +293,7 @@ function handleAuthorClick(videoUrl, authorName, event) {
     border-radius: 15px;
     z-index: 1;
     width: 100%;
+    margin-bottom: -25px;
 }
 
 .all-video-element:hover .preview {

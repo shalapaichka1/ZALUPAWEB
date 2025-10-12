@@ -1,8 +1,11 @@
 <script setup>
 import ModerationComponent from '../components/ModerationComponent.vue'
+import ModerationIdeaFilters from '@/components/ModerationIdeaFilters.vue';
 </script>
 
 <template>
-    <ModerationComponent/>
+    <Suspense>
+        <ModerationComponent/>
+    </Suspense>
 </template>
 

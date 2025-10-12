@@ -3,6 +3,10 @@ import { defineStore } from 'pinia'
 import { instance } from '../../services/axios/instance'
 
 const APIKEY = 'AIzaSyAkAVqh68vBS5M9gDkOGfvZCgc730jpynE'
+const ideasCategoryFilter = ref('Все')
+const ideasStatusFilter = ref('Все')
+const newVideoCount = ref('')
+const newIdeaCount = ref('')
 const agreementIdea = ref('')
 const isChatOpen = ref(false)
 const isModeration = ref(false)
@@ -280,6 +284,10 @@ function getCookie(name) {
     ideaList,
     videoList,
     parseYouTubeUrl,
-    agreementIdea
+    agreementIdea,
+    newIdeaCount,
+    newVideoCount,
+    ideasStatusFilter,
+    ideasCategoryFilter
   }
 })

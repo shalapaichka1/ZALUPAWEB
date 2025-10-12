@@ -3,6 +3,7 @@ import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { instance } from '../../services/axios/instance';
 import toast from 'vue3-hot-toast';
+import ModerationIdeaFilters from './ModerationIdeaFilters.vue';
 
 const statusesList = {
     0: ['moderation', 'На модерации', '#00000000'],
@@ -48,8 +49,11 @@ async function getIdeaStatus(el, status) {
 </script>
 
 <template>
+    <ModerationIdeaFilters/>
+
     <div class="ideas-cointainer">
         <div class="idea-elements" v-for="element in useAuthStore().ideaList">
+            
             <div class="idea-description idea-area">
                 <div class="idea-headers">
                     <label class="idea-description headers" for="">Описание:</label>
@@ -60,12 +64,15 @@ async function getIdeaStatus(el, status) {
                 
             </div>
             <div class="idea-info idea-area">
+                    <div class="new-video-notice" v-if="(element.agreement_status == 0)"></div>
 
                 <div class="idea-headers">
+
                     <div class="idea-id ">
                         <label for="">Идея №: {{ element.id }}</label>
                     </div>
                 </div>
+
                 <div class="idea-body">
                     <div class="idea-title">
                         <label for="">Заголовок: </label>
@@ -106,8 +113,18 @@ async function getIdeaStatus(el, status) {
 </template>
 
 <style lang="scss">
+.new-video-notice, .video-agreement{
+    right: 15px;
+    position: absolute;
+    color: aliceblue;
+    background-color: #ff9d35;
+    padding: 15px;
+    border-radius: 15px;
+    transition: .3s ease-in;
+}
 .idea-info {
     display: flex;
+    position: relative;
 }
 .idea-buttons {
     display: flex;
