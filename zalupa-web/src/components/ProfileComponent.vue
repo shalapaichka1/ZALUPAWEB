@@ -75,7 +75,7 @@ function logout() {
     useAuthStore().isAuthorized = false
     useAuthStore().isProfileOpen = false
     useAuthStore().isModeration = false
-    useAuthStore().userInfo.isModerator = false
+    useAuthStore().userInfo = ref({})
     useAuthStore().reloadPage()
   } catch (error) {
     console.log(error)
@@ -115,7 +115,6 @@ async function changeUsernameButton(isEditing) {
               <img v-if="useAuthStore().userInfo.isVerified" class="verified" src="../images/verified.png" alt="">
               <img v-if="useAuthStore().userInfo.isModerator" class="verified" src="../images/moderator.png" alt="">
             </div>
-
         </div>
         <img 
           @click="useAuthStore().isProfileOpen = false" 
@@ -413,7 +412,6 @@ async function changeUsernameButton(isEditing) {
   font-weight: 500;
 }
 
-/* Стили кнопок */
 .auth-button {
   padding: 12px 20px;
   background: #6441a1;
@@ -461,7 +459,6 @@ async function changeUsernameButton(isEditing) {
   width: 100%;
 }
 
-/* Анимации */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -477,7 +474,6 @@ async function changeUsernameButton(isEditing) {
   animation: fadeIn 0.5s ease;
 }
 
-/* Адаптивность */
 @media (max-width: 480px) {
   .profile-form {
     padding: 30px 20px;

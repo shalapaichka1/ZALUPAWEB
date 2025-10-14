@@ -57,32 +57,19 @@ function sendMessage() {
   limitCounter.value = 0
 }
 
-
-
-
-
-
-
-
-// Проверяем, есть ли сообщения в чате в localStorage
 const savedMessages = localStorage.getItem('chatMessages');
 
-// Инициализируем массив chatMessages сохраненными сообщениями или пустым массивом
 let chatMessages = savedMessages ? JSON.parse(savedMessages) : [];
 
-// Функция для добавления нового сообщения в чат
 function addMessageToChat(message, sender) {
   chatMessages.push({ message, sender });
-  // Обновляем localStorage с обновленным массивом chatMessages
   localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
 }
 
-// Функция для получения всех сообщений в чате
 function getChatMessages() {
   return chatMessages;
 }
 
-// Пример использования:
 const allMessages = getChatMessages();
 console.log(allMessages);
 
@@ -159,9 +146,9 @@ console.log(allMessages);
     width: 100%;
     background-color: #151515;
     padding: 5px 15px ;
-    word-wrap: break-word; /* Разрешает перенос слов */
-    overflow-wrap: break-word; /* Альтернатива для старых браузеров */
-    word-break: break-word; /* Разрешает перенос слов */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
 
     &:hover {
       background-color: #303030;

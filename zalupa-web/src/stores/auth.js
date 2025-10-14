@@ -24,7 +24,8 @@ const isDarkTheme = ref(true)
 const isProfileOpen = ref(false)
 const isAuthorized = ref(document.cookie.includes('username='))
 const myFavorites = ref([])
-
+const user = ref()
+const pass = ref('')
 const userInfo = ref({
   username: '',
   password: '',
@@ -34,7 +35,8 @@ const userInfo = ref({
   confirmed: true,
   blocked: false,
   telegram: '',
-  phoneNumber: ''
+  phoneNumber: '',
+  jwt: ''
 })
 
 const login = async (email, password) => {
@@ -181,19 +183,15 @@ async function getVideos() {
   }
 
 function deleteAllCookies() {
-  // Получаем все куки
   const cookies = document.cookie.split(';')
 
-  // Перебираем все куки
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i]
     const eqPos = cookie.indexOf('=')
     const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim()
 
-    // Удаляем куки, устанавливая прошлую дату expiration
     document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;'
 
-    // Также удаляем для других возможных путей и доменов
     document.cookie =
       name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=' + document.domain + ';'
     document.cookie =
@@ -288,6 +286,8 @@ function getCookie(name) {
     newIdeaCount,
     newVideoCount,
     ideasStatusFilter,
-    ideasCategoryFilter
+    ideasCategoryFilter,
+    user,
+    pass
   }
 })

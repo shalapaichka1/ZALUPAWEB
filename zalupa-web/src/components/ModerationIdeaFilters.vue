@@ -71,7 +71,7 @@
   }
 </script>
 
-<template>
+<template v-if="useAuthStore().userInfo.isModerator">
   <div class="video-view-header">
     <div class="navigation">
       <div>
@@ -111,7 +111,9 @@
 
 .navigation {
   display: flex;
+  position: relative;
   gap: 15px;
+  right: 0;
 }
 
 .footer {
@@ -129,15 +131,17 @@
 
 .video-view-header {
   position: absolute;
+  display: flex;
   z-index: 2;
   background-color: #15151559;
   box-shadow: 0px 15px 15px 0px #00000073;
   backdrop-filter: blur(20px);
   padding: 15px;
   width: 100%;
-
+  right: 0;
   display: flex;
   justify-content: space-between;
+  flex-direction: row-reverse
 }
 
 .switch-video-modules {

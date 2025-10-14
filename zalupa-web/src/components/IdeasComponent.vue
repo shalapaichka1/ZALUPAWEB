@@ -57,7 +57,7 @@ async function submitIdea(event) {
         title: ideaForm.value.title,
         description: ideaForm.value.description,
         category: ideaForm.value.category,
-        sender: authStore.userInfo.username,
+        sender: authStore.userInfo?.username,
         agreement_status: 0,
         telegram_link: ideaForm.value.telegramLink,
         send_date: new Date().toISOString()

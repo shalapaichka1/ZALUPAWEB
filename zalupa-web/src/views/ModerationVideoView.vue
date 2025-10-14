@@ -267,6 +267,7 @@ mounted()
                         <option value="Страшное">Страшное</option>
                         <option value="Другое">Другое</option>
                         <option value="Клипы">Клипы</option>
+                        <option value="Игры">Игры</option>
                     </select>
                 </div>
 
@@ -319,6 +320,7 @@ mounted()
                                 <option value="Страшное">Страшное</option>
                                 <option value="Другое">Другое</option>
                                 <option value="Клипы">Клипы</option>
+                                <option value="Игры">Игры</option>
                             </select>
                             <div class="video-element-actions">
                                 <button v-if="i.is_checked" class="video-element-actions-buttons is-checked-button" @click="toCheckedFunction(i, i.is_checked)">

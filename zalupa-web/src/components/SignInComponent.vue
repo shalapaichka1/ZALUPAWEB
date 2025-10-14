@@ -98,9 +98,11 @@ async function handleLogin() {
         console.log('Well done!');
         console.log('User profile', response.data.user);
         console.log('User token', response.data.jwt);
+        console.log(response.data)
 
         Cookies.set('username', response.data.user.username)
         Cookies.set('isModeration', response.data.user.isModerator)
+        Cookies.set("jwtToken", response.data.jwt)
 
         useAuthStore().userInfo = response.data.user
         useAuthStore().isOpenSignInComponent = false
@@ -442,7 +444,6 @@ function toggleForm() {
   color: #7d5bbe;
 }
 
-/* Анимации */
 @keyframes fadeIn {
   from {
     opacity: 0;

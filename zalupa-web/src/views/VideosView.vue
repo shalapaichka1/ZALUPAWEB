@@ -5,24 +5,33 @@
   import { instance } from '../../services/axios/instance';
   import { ref } from 'vue';
   import { useAuthStore } from '@/stores/auth'
-import Cookies from 'js-cookie';
+  import Cookies from 'js-cookie';
+  
   const videoModuleSwitchCondition = ref('all')
+  const activeModule = ref('all')
 
   function openVideoButtonConditionFunction() { 
     useAuthStore().isOpenCloseAddVideoModule = true
   }
+
   async function switchVideoModulesFunctionFavorites() {
+    activeModule.value = 'favorites'
     const res = await instance.get(`/videos?filters[users]?users[username]=${Cookies.get('username')}&filters[agreement_status]=1`)
     useAuthStore().videoList = res.data.data
   }
+
   async function switchVideoModulesFunctionAll() {
-        const res = await instance.get(`/videos?filters[agreement_status]=1`)
+    activeModule.value = 'all'
+    const res = await instance.get(`/videos?filters[agreement_status]=1`)
     useAuthStore().videoList = res.data.data
   }
+
   async function switchVideoModulesFunction(){
+    activeModule.value = 'my'
     const res = await instance.get(`/videos/?filters[sender]=${Cookies.get('username')}&filters[agreement_status]=1`)
     useAuthStore().videoList = res.data.data
   }
+
   async function onChangeCategorySelect(event) {
     useAuthStore().sortCategory = event.target.value
     try {
@@ -34,7 +43,6 @@ import Cookies from 'js-cookie';
         const res = await instance.get(`/videos/?filters[category]=${useAuthStore().sortCategory}&filters[agreement_status]=1`)
         useAuthStore().videoList = res.data.data
       }
-
     } catch(error){
         console.error(error)
     }
@@ -46,6 +54,7 @@ import Cookies from 'js-cookie';
         useAuthStore().isListEmpty = false
       }
   }
+
   async function clearFilters() {
     useAuthStore().sortCategory = 'Все'
     try {
@@ -66,9 +75,24 @@ import Cookies from 'js-cookie';
 <template>
   <div class="video-view-header">
     <div class="switch-video-modules">
-      <button @click="switchVideoModulesFunctionAll">Все видео</button>
-      <button @click="switchVideoModulesFunction">Ваши видео</button>
-      <button @click="switchVideoModulesFunctionFavorites">Избранное</button>
+      <button 
+        @click="switchVideoModulesFunctionAll" 
+        :class="{ active: activeModule === 'all' }"
+      >
+        Все видео
+      </button>
+      <button 
+        @click="switchVideoModulesFunction" 
+        :class="{ active: activeModule === 'my' }"
+      >
+        Ваши видео
+      </button>
+      <button 
+        @click="switchVideoModulesFunctionFavorites" 
+        :class="{ active: activeModule === 'favorites' }"
+      >
+        Избранное
+      </button>
     </div>
     <div class="navigation">
       <div>
@@ -81,32 +105,30 @@ import Cookies from 'js-cookie';
           <option value="Политика">Политика</option>
           <option value="Страшное">Страшное</option>
           <option value="Клипы">Клипы</option>
+          <option value="Игры">Игры</option>
           <option value="Другое">Другое</option>
         </select>
       </div>
 
-
-    <button class="clearButton" @click="clearFilters">
-      <img src="../images/clearButton.png" alt="">
-    </button>
-
+      <button class="clearButton" @click="clearFilters">
+        <img src="../images/clearButton.png" alt="">
+      </button>
     </div>
-
   </div>
 
   <main>
     <MyVideosComponent v-if="videoModuleSwitchCondition === 'my'"/>
     <AllVideosComponent v-else/>
-
   </main>
+  
   <div v-if="useAuthStore().isAuthorized" class="footer">
     <button @click="openVideoButtonConditionFunction" class="sendVideoButton">Отправить видео</button>
   </div>
-    <AddVideoComponent/>
+  
+  <AddVideoComponent/>
 </template>
 
 <style scoped lang="scss">
-
 .sendVideoButton {
   background-color: #6441a1;
   border: 1px solid #6441a1;
@@ -139,7 +161,6 @@ import Cookies from 'js-cookie';
   backdrop-filter: blur(20px);
   padding: 15px;
   width: 100%;
-
   display: flex;
   justify-content: space-between;
 }
@@ -152,6 +173,23 @@ import Cookies from 'js-cookie';
   button {
     width: 150px;
     color: white;
+    background-color: transparent;
+    border: 1px solid #6441a1a5;
+    transition: all 0.3s ease;
+    
+    &.active {
+      background-color: #6441a1;
+      border-color: #7d5bbe;
+      box-shadow: 0 0 10px rgba(100, 65, 161, 0.5);
+    }
+    
+    &:hover {
+      background-color: rgba(100, 65, 161, 0.3);
+    }
+    
+    &.active:hover {
+      background-color: #7d5bbe;
+    }
   }
 }
 </style>

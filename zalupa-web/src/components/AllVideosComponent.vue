@@ -316,7 +316,6 @@ function handleAuthorClick(videoUrl, authorName, event) {
     font-size: 3vh;
     overflow: hidden;
 }
-/* Стили для кликабельного имени автора */
 
 .el-author {
     cursor: pointer;

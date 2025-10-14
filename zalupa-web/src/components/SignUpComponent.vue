@@ -4,10 +4,10 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
 import { useAuthStore } from '../stores/auth'
 import { API } from '../../services/api'
+import Cookies from 'js-cookie'
 
 const authStore = useAuthStore()
 
-// Реактивные данные формы
 const formData = ref({
   username: '',
   email: '',
@@ -15,7 +15,6 @@ const formData = ref({
   repeatPassword: ''
 })
 
-// Правила валидации
 const rules = {
   username: { required, minLength: minLength(6) },
   email: { required, email },
@@ -25,7 +24,6 @@ const rules = {
 
 const v$ = useVuelidate(rules, formData)
 
-// Отправка формы
 const submitForm = async () => {
   const isValid = await v$.value.$validate()
   
@@ -56,7 +54,6 @@ const submitForm = async () => {
       <hr>
 
       <div class="form-inputs">
-        <!-- Поле "Логин" -->
         <input
           v-model="formData.username"
           class="form-input"
@@ -69,7 +66,6 @@ const submitForm = async () => {
           Логин должен быть не менее 6 символов
         </span>
 
-        <!-- Поле "Email" -->
         <input
           v-model="formData.email"
           class="form-input"
@@ -82,7 +78,6 @@ const submitForm = async () => {
           Введите корректный email
         </span>
 
-        <!-- Поле "Пароль" -->
         <input
           
           v-model="formData.password"
@@ -96,7 +91,6 @@ const submitForm = async () => {
           Пароль должен быть не менее 8 символов
         </span>
 
-        <!-- Поле "Повтор пароля" -->
         <input
           v-model="formData.repeatPassword"
           class="form-input"
