@@ -33,31 +33,16 @@ export const getUsers = async () => {
   }
 }
 
+function getYouTubeVideoId(url) {
+  const regex =
+    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+  const match = url.match(regex)
+  return match ? match[1] : null
+}
+
 export const addVideo = async (link, comment_text) => {
   try {
     const authStore = useAuthStore();
-    
-    // Проверяем, есть ли JWT токен
-    if (!authStore.token) {
-      // Если токена нет, пробуем получить его через логин
-      const username = Cookies.get('username');
-      const password = Cookies.get('password'); // Не рекомендуется хранить пароль в cookies!
-      
-      if (!username || !password) {
-        toast.error('Требуется авторизация');
-        throw new Error('Not authenticated');
-      }
-      
-      // Получаем JWT токен от Strapi
-      const loginResponse = await axios.post('http://localhost:1337/api/auth/local', {
-        identifier: username,
-        password: password
-      });
-      
-      const { jwt, user } = loginResponse.data;
-      authStore.setToken(jwt);
-      authStore.user = user;
-    }
 
     const send_date_res = new Date().toISOString().split('T')[0];
 
@@ -65,30 +50,32 @@ export const addVideo = async (link, comment_text) => {
       `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${link.split('=')[1]}&key=AIzaSyAd_rFuqgRiTnoUv0SzJfgVGdOauNwHYAw`
     );
 
-    // Отправляем запрос с JWT токеном
-    const response = await instance.post('/videos', {
-      data: {
-        url: link,
-        url_id: link.split('=')[1],
-        title: getTitle.data.items[0].snippet.title,
-        sender: Cookies.get('username'),
-        comment: comment_text,
-        agreement_status: '0',
-        is_checked: false,
-        send_date: send_date_res,
-        author: getTitle.data.items[0].snippet.channelTitle,
-        like_count: 0
+    const response = await instance.post(
+      '/videos',
+      {
+        data: {
+          url: link,
+          url_id: getYouTubeVideoId(link),
+          title: getTitle.data.items[0].snippet.title,
+          sender: Cookies.get('username'),
+          comment: comment_text,
+          agreement_status: '0',
+          is_checked: false,
+          send_date: send_date_res,
+          author: getTitle.data.items[0].snippet.channelTitle,
+          like_count: 0
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
       }
-    }, {
-      headers: {
-        'Authorization': `Bearer ${authStore.token}`
-      }
-    });
+    )
 
     console.log(response.data);
     toast.success(`Видео отправлено на модерацию`);
     
-    // Обновляем страницу
     if (authStore.reloadPage) {
       authStore.reloadPage();
     }
@@ -97,7 +84,6 @@ export const addVideo = async (link, comment_text) => {
   } catch (error) {
     console.error('Error adding video:', error);
     
-    // Обработка ошибок авторизации
     if (error.response?.status === 401) {
       toast.error('Ошибка авторизации. Пожалуйста, войдите снова.');
       authStore.logout();
@@ -109,12 +95,10 @@ export const addVideo = async (link, comment_text) => {
   }
 }
 
-// Альтернативная версия - если у вас есть отдельная функция для получения JWT
 export const addVideoWithAuth = async (link, comment_text) => {
   try {
     const authStore = useAuthStore();
     
-    // Получаем JWT токен (предполагается, что пользователь уже залогинен)
     const token = await getJWTToken();
     
     if (!token) {

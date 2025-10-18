@@ -22,7 +22,22 @@
         return false;
         }
     }
+function isValidYouTubeUrl(url) {
+    if (!url || typeof url !== 'string') {
+        return false;
+    }
 
+    // Регулярные выражения для различных форматов YouTube
+    const patterns = [
+        /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})(&.*)?$/,
+        /^(https?:\/\/)?(www\.)?(youtu\.be\/)([a-zA-Z0-9_-]{11})(\?.*)?$/,
+        /^(https?:\/\/)?(www\.)?(youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(\?.*)?$/,
+        /^(https?:\/\/)?(www\.)?(youtube\.com\/v\/)([a-zA-Z0-9_-]{11})(\?.*)?$/,
+        /^(https?:\/\/)?(m\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})(&.*)?$/
+    ];
+
+    return patterns.some(pattern => pattern.test(url));
+}
     async function notification() {
         if (url.value === '') {
             showError('Вы не ввели ссылку на видео!')
@@ -34,7 +49,7 @@
             return
         }
             
-        if (!url.value.includes('www.youtube.com/watch?')) {
+        if (!isValidYouTubeUrl(url.value)) {
             showError('Неверная ссылка на YouTube видео')
             return
         }

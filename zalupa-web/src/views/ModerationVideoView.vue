@@ -117,7 +117,7 @@ async function clearFilters() {
 
 async function toCheckedFunction(el, isCheck){
     console.log(el.documentId)
-    const res = await instance.put(`videos/${el.documentId}`,{
+    const res = await instance.put(`videos/${el.documentId}?sort[title]=asc`,{
         data:{
             is_checked: !isCheck
         }
@@ -137,7 +137,7 @@ async function toCheckedFunction(el, isCheck){
 }
 
 async function toFirstTabFunction(el, isFT){
-    const res = await instance.put(`videos/${el.documentId}`,{
+    const res = await instance.put(`videos/${el.documentId}?sort[title]=asc`,{
         data:{
             isFirstTab: !isFT
         }
@@ -157,7 +157,7 @@ async function toFirstTabFunction(el, isFT){
 }
 
 async function changeAgreementStatusFunction(el, status){
-    const res = await instance.put(`videos/${el.documentId}`,{
+    const res = await instance.put(`videos/${el.documentId}?sort[title]=asc`,{
         data:{
             agreement_status: status.toString()
         }
@@ -200,7 +200,7 @@ async function changeCategorySelect(event, el) {
             }
         };
 
-        const response = await instance.put(`videos/${el.documentId}`, updateData);
+        const response = await instance.put(`videos/${el.documentId}?sort[title]=asc`, updateData);
         
         if (response.data) {
             console.log('Успешно обновлено:', response.data);
@@ -592,6 +592,10 @@ mounted()
     &:hover {
         transform: scale(1.01);
         border:1px solid #8f8f8f ;
+    }
+
+    &:active {
+        transform: scale(.99);
     }
 }
 

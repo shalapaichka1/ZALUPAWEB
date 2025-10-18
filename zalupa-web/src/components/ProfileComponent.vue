@@ -157,10 +157,10 @@ async function changeUsernameButton(isEditing) {
                 >
             <span v-else class="info-value">{{useAuthStore().userInfo.username}}</span>
             
-                <button @click="isEditing.username=!isEditing.username, changeUsernameButton(isEditing.username)" class="secondary" :disabled="isLoading">
+                <!-- <button @click="isEditing.username=!isEditing.username, changeUsernameButton(isEditing.username)" class="secondary" :disabled="isLoading">
                     <img v-if="!isEditing.username" class="edit-button" src="../images/editPencil.png" alt="">
                     <img v-else class="edit-button" src="../images/Done.png" alt="">
-                </button>
+                </button> -->
             </div>
           </div>
 
@@ -175,10 +175,10 @@ async function changeUsernameButton(isEditing) {
               :disabled="isLoading"
             >
             <span v-else class="info-value">{{useAuthStore().userInfo.email}}</span>
-                <button @click="isEditing.email=!isEditing.email" class="secondary" :disabled="isLoading">
+                <!-- <button @click="isEditing.email=!isEditing.email" class="secondary" :disabled="isLoading">
                     <img v-if="!isEditing.email" class="edit-button" src="../images/editPencil.png" alt="">
                     <img v-else class="edit-button" src="../images/Done.png" alt="">
-                </button>
+                </button> -->
             </div>
           </div>
 
@@ -193,10 +193,10 @@ async function changeUsernameButton(isEditing) {
               :disabled="isLoading"
             >
             <span v-else class="info-value">{{useAuthStore().userInfo.telegram}}</span>
-                <button @click="isEditing.telegram=!isEditing.telegram" class="secondary" :disabled="isLoading">
+                <!-- <button @click="isEditing.telegram=!isEditing.telegram" class="secondary" :disabled="isLoading">
                     <img v-if="!isEditing.telegram" class="edit-button" src="../images/editPencil.png" alt="">
                     <img v-else class="edit-button" src="../images/Done.png" alt="">
-                </button>
+                </button> -->
             </div>
           </div>
           
@@ -206,7 +206,7 @@ async function changeUsernameButton(isEditing) {
           </div>
         </div>
 
-        <div class="password-section">
+        <!-- <div class="password-section">
           <h3>Смена пароля</h3>
           <div class="form-group">
             <input
@@ -239,7 +239,7 @@ async function changeUsernameButton(isEditing) {
             Сменить пароль
           </button>
           </div>
-        </div>
+        </div> -->
                     <button 
                 @click="logout" 
                 class="auth-button logout"

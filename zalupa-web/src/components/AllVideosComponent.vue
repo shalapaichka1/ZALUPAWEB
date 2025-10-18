@@ -244,8 +244,8 @@ function handleAuthorClick(videoUrl, authorName, event) {
 
 .all-video-module {
     padding: 15px;
-    padding-top: 95px;
-    padding-bottom: 14vh;
+    padding-top: 6%;
+    padding-bottom: 8dvw;
     height: 95vh;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -293,7 +293,7 @@ function handleAuthorClick(videoUrl, authorName, event) {
     border-radius: 15px;
     z-index: 1;
     width: 100%;
-    margin-bottom: -25px;
+    margin-top: -53px;
 }
 
 .all-video-element:hover .preview {

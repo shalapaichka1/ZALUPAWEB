@@ -16,7 +16,7 @@ const buttonsInfo = {
 }
 
 async function loadIdeas() {
-    const res = await instance.get('/ideas?sort[title]=asc')
+    const res = await instance.get('/ideas?sort[title]=asc&filters[agreement_status]=0')
     useAuthStore().ideaList = res.data.data
 }
 
@@ -37,7 +37,7 @@ async function getIdeaStatus(el, status) {
         if (response.data) {
             console.log('Успешно обновлено:', response.data);
             toast.success(`Успешно`)
-            loadIdeas()
+            loadIdeas(el.agreem)
             return response.data;
         }
         
@@ -48,12 +48,13 @@ async function getIdeaStatus(el, status) {
 }
 </script>
 
-<template>
-    <ModerationIdeaFilters/>
+<template >
+    <ModerationIdeaFilters v-if="useAuthStore().userInfo.isModerator"/>
 
-    <div class="ideas-cointainer">
+    <div class="ideas-cointainer" v-if="useAuthStore().userInfo.isModerator">
         <div class="idea-elements" v-for="element in useAuthStore().ideaList">
-            
+            <div class="new-video-notice" v-if="(element.agreement_status == 0)"></div>
+
             <div class="idea-description idea-area">
                 <div class="idea-headers">
                     <label class="idea-description headers" for="">Описание:</label>
@@ -64,7 +65,6 @@ async function getIdeaStatus(el, status) {
                 
             </div>
             <div class="idea-info idea-area">
-                    <div class="new-video-notice" v-if="(element.agreement_status == 0)"></div>
 
                 <div class="idea-headers">
 
@@ -99,13 +99,13 @@ async function getIdeaStatus(el, status) {
                         <label for="">Telegram: </label>
                         <span>{{ element.telegram_link }}</span>
                     </div>
+
+                </div>
                     <div class="idea-buttons">
                         <button v-for="el in 2" style="" @click="getIdeaStatus(element, el)">
                             {{ buttonsInfo[el][0] }}
                         </button>
                     </div>
-                </div>
-
             </div>
         </div>
     </div>
@@ -114,8 +114,9 @@ async function getIdeaStatus(el, status) {
 
 <style lang="scss">
 .new-video-notice, .video-agreement{
-    right: 15px;
+    right: 0;
     position: absolute;
+    margin: 15px;
     color: aliceblue;
     background-color: #ff9d35;
     padding: 15px;
@@ -123,8 +124,9 @@ async function getIdeaStatus(el, status) {
     transition: .3s ease-in;
 }
 .idea-info {
-    display: flex;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 .idea-buttons {
     display: flex;
@@ -144,20 +146,26 @@ async function getIdeaStatus(el, status) {
     overflow-y: auto;
 }
 .idea-elements {
+    position: relative;
     width: 30vw;
-    height: 30vh;
+    height: max-content;
     display: flex;
     margin-bottom: 4vh;
-    border: 1px solid white;
-    background-color: #E1D0AE;
+    border: 1px solid rgba(255, 255, 255, 0.124);
+    background-color: #22222200;
     border-radius: 15px;
+    cursor: pointer;
+
+    &:hover {
+        transform: scale(1.01);
+    }
 }
 .idea-area {
     display: flex;
     flex-direction: column;
     padding: 1rem;
     width: 100%;
-    background-color: #E1D0AE;
+    background-color: #22222200;
     border-radius: 15px;
 }
 

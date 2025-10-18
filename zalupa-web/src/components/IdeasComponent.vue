@@ -161,9 +161,9 @@ function resetForm() {
             Очистить
           </button>
           <button 
-            type="submit" 
+            type="submit"
             class="submit-btn"
-            :disabled="isSubmitting"
+            :disabled="isSubmitting || (ideaForm.telegramLink.length < 3 || ideaForm.telegramLink[0] != ('@'))"
           >
             {{ isSubmitting ? 'Отправка...' : 'Отправить идею' }}
           </button>
@@ -342,6 +342,8 @@ function resetForm() {
 }
 
 .ideas-grid {
+  margin-right: 10px;
+  margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;

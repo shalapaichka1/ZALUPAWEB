@@ -25,9 +25,18 @@ function openProfile(){
 <template>
     <div class="header">
         <div class="header-logo">
-            <router-link to="/videos" class="header-logo-title">ZALUPAWEB</router-link>
-            <img class="stitch" src="../images/stitch.svg" alt="">
+            <div class="zalupa-web">
+                <router-link to="/videos" class="header-logo-title">ZALUPAWEB</router-link>
+                <img class="stitch" src="../images/stitch.svg" alt="">
+            </div>
+
+            <a class="eblo-id" href="https://eblo.id/">
+                <img src="../images/eblo-logo.svg" alt="">
+            </a>
         </div>
+        
+
+
 
         <div class="header-navigation">
             <router-link class="header-navigation-items" to="/ideas">Идеи</router-link>
@@ -45,13 +54,29 @@ function openProfile(){
                 <button v-if="!useAuthStore().isAuthorized" class="open-sign-in-component-button" @click="openSignInComponent"><img class="header-plus hub" src="../images/Enter.png" alt=""></button>
                 <button v-else class="open-profile-button" @click="openProfile"><img class="header-plus hub" src="../images/user.svg" alt=""></button>
             </div>
-        </div>   
+        </div>
     </div>
     <ProfileComponent v-if="useAuthStore().isProfileOpen"/>
 </template>
 
 <style scoped>
 
+.eblo-id, .zalupa-web {
+    display: flex;
+    align-items: center;
+    padding: 5px 15px;
+    border-radius: 15px;
+    height: 60px;
+
+    &:hover{
+        box-shadow: 0px 0px 15px 0px #ffffff69;
+        transform: scale(1.01);
+    }
+
+    &:active {
+        transform: scale(.99);
+    }
+}
 .header-plus {
     height: 1.5rem;
 }
@@ -89,6 +114,7 @@ function openProfile(){
 .header-logo {
     display: flex;
     align-items: center;
+    gap: 15px;
 }
 
 .header-navigation {

@@ -4,7 +4,7 @@ import { instance } from '../../services/axios/instance'
 
 const APIKEY = 'AIzaSyAkAVqh68vBS5M9gDkOGfvZCgc730jpynE'
 const ideasCategoryFilter = ref('Все')
-const ideasStatusFilter = ref('Все')
+const ideasStatusFilter = ref('0')
 const newVideoCount = ref('')
 const newIdeaCount = ref('')
 const agreementIdea = ref('')
