@@ -459,7 +459,6 @@ function toggleForm() {
   animation: fadeIn 0.5s ease;
 }
 
-/* Адаптивность */
 @media (max-width: 480px) {
   .auth-form {
     padding: 30px 20px;

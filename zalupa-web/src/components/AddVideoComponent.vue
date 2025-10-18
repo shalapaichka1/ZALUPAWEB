@@ -27,7 +27,6 @@ function isValidYouTubeUrl(url) {
         return false;
     }
 
-    // Регулярные выражения для различных форматов YouTube
     const patterns = [
         /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})(&.*)?$/,
         /^(https?:\/\/)?(www\.)?(youtu\.be\/)([a-zA-Z0-9_-]{11})(\?.*)?$/,
